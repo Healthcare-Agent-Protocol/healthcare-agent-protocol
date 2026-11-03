@@ -222,14 +222,3 @@ Check successful intermediary issuance and direct payer acceptance, plus these f
 
 A production release still needs schemas, a trust-policy profile, a verifier implementation, and independent interoperability checks.
 See the [pilot roadmap](../../docs/roadmap.md).
-
-## Changes from draft 1
-
-Draft 2 replaces identity-only attestations with intermediary-issued access grants.
-It deletes the payer session and verification endpoints, `hap.identity`, and the payer-issued access-token step.
-It uses the standard OAuth scope and access-token fields instead of the old session-state response.
-The access-token lifetime is now at most 300 seconds, replacing the earlier 900-second payer grant.
-It adopts the RFC 9068 access-token profile and its RS256 baseline instead of the earlier ES256 identity-token profile.
-The intermediary can process provider delegation and access metadata while claim content remains between client and payer.
-
-Draft 1 remains in Git history. Its endpoints, token types, and flow are not compatible with this version.
