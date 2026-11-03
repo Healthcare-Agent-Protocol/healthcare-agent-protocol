@@ -1,0 +1,20 @@
+# Security
+
+This repository contains early protocol drafts. It has no production release or deployed service.
+
+## Data handling
+
+Use invented data in examples, tests, issues, and pull requests.
+Never submit patient data, claim records from production, credentials, tokens, private keys, recordings, or transcripts.
+
+HAP-1 separates identity attestation from payer authorization.
+Its identity intermediary must not receive claim payloads or payer verification answers.
+See the [HAP-1 draft](spec/identity/hap-1.md) for the proposed boundaries.
+
+## Vulnerability reports
+
+Use GitHub's private vulnerability reporting feature in this repository's Security tab.
+Do not disclose exploitable details in a public issue.
+Use invented values in reports.
+
+Protocol review and conformance work remain in progress.
