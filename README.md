@@ -14,7 +14,8 @@ It does not yet contain a complete protocol, executable reference implementation
 | --- | --- |
 | [Architecture](docs/architecture.md) | Protocol layers and authority boundaries |
 | [Business capabilities](docs/capabilities.md) | Nine proposed business functions |
-| [HAP-1 identity and access draft](spec/identity/hap-1.md) | Supplied partner-review proposal, version `1.0-draft.1` |
+| [HAP-1 identity and access](spec/identity/hap-1.md) | Plain-language walkthrough of the partner-review draft |
+| [HAP-1 HTTP reference](spec/identity/hap-1-http.md) | Implementation details for version `1.0-draft.1` |
 | [Roadmap](docs/roadmap.md) | Work required for the first complete pilot |
 | [Contributing](CONTRIBUTING.md) | How to propose changes |
 | [Security](SECURITY.md) | Data handling and vulnerability reporting |
