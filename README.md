@@ -52,6 +52,7 @@ This repository uses the [Apache License 2.0](LICENSE).
 ## Documentation site
 
 The documentation uses [Mintlify](https://www.mintlify.com/docs/quickstart).
+Read the [live documentation](https://healthcare-agent-protocol.mintlify.site).
 Site settings and navigation live in [docs.json](docs.json).
 Pages use the existing Markdown documents and the MDX introduction pages.
 
@@ -70,3 +71,12 @@ Before a push, run:
 npm run docs:validate
 npm run docs:links
 ```
+
+### Publishing
+
+The Mintlify site is claimed. Connect this repository in the project's
+[Git Settings](https://app.mintlify.com/settings/project/git-settings) to deploy future changes.
+Select branch `main`. Keep the documentation directory at the repository root.
+
+GitHub Actions checks the documentation build and internal links.
+The temporary agent deployment workflow applied only before the site was claimed.
