@@ -1,308 +1,235 @@
 ---
 title: "HAP-1 HTTP reference"
-description: "Endpoints, fields, and draft choices for implementing the HAP-1 identity and access flow."
+description: "Intermediary-issued access tokens and minimal enforcement at the payer boundary."
 ---
 
-This reference defines the proposed HTTP contract for HAP-1 version `1.0-draft.1`.
-Start with the [identity and access walkthrough](hap-1.md) for the flow and participant roles.
+HAP-1 version `1.0-draft.2` delegates client authentication and access decisions to a trusted intermediary.
+The payer acts as the protected resource service and accepts the intermediary's access tokens directly.
+See the [walkthrough](hap-1.md) for the participant roles and flow.
 
-The November 3, 2026 documentation revision simplifies the original draft without changing its wire contract.
-The endpoints and HAP-specific settings remain proposals for partner review.
+This draft changes the trust model and wire contract. It remains a proposal for partner review.
 
-## Underlying standards
-
-Use the linked standards for their mechanisms and validation rules.
-The sections below define the HAP-specific choices needed to use them together.
+## Use existing standards
 
 | Area | Standard |
 | --- | --- |
-| Client authentication and token issuance | [OAuth 2.0, section 4.4](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.4) |
-| Intended payer service in the token request | [OAuth resource indicators](https://www.rfc-editor.org/rfc/rfc8707.html) |
-| Identity token format and registered fields | [JWT](https://www.rfc-editor.org/rfc/rfc7519.html) |
-| JWT validation and separation of token types | [JWT security practices, section 3](https://www.rfc-editor.org/rfc/rfc8725.html#section-3) |
-| Key binding, presenter proofs, replay detection, nonces, and authentication errors | [DPoP](https://www.rfc-editor.org/rfc/rfc9449.html) |
+| Client authentication and token issuance at the intermediary | [OAuth 2.0 client credentials](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.4) |
+| Payer resource selection | [OAuth resource indicators](https://www.rfc-editor.org/rfc/rfc8707.html) |
+| Provider and record constraints | [Rich authorization requests](https://www.rfc-editor.org/rfc/rfc9396.html), with the HAP type below |
+| Signed access tokens and their validation | [JWT access token profile](https://www.rfc-editor.org/rfc/rfc9068.html) and [JWT security practices](https://www.rfc-editor.org/rfc/rfc8725.html) |
+| Token binding, key possession, nonces, and replay handling | [DPoP](https://www.rfc-editor.org/rfc/rfc9449.html) |
+| Optional online token status | [OAuth token introspection](https://www.rfc-editor.org/rfc/rfc7662.html) |
+
+These standards supply the security mechanisms. HAP defines who can issue a grant and what its healthcare constraints mean.
+
+## Establish trust before requests
+
+The payer approves an issuer, its signing keys, and the policy under which it can grant access.
+The agreement defines permitted scopes, provider delegation evidence, record rules, and revocation requirements.
+Trust for identity checks alone does not permit an issuer to grant access.
+
+The intermediary verifies the organization controlling the client and binds enrollment credentials to that client.
+It checks the provider's delegation, including any RCM organization between the provider and automated client.
+Accepted evidence can include signed delegation or another method the payer approved in the trust agreement.
+The intermediary maintains this evidence and checks that the delegation remains active before issuing a token.
+
+The client cannot authorize itself by supplying a provider NPI.
+The intermediary uses its verified enrollment and delegation records to decide whether the request is permitted.
+A provider's delegation alone does not override the payer's agreed access policy.
+
+The payer uses a local verifier component for token and request checks.
+No separate payer client enrollment, login, verification questionnaire, session service, or token issuance endpoint is required.
 
 ## Draft settings
 
-| Setting | Value |
+| Setting | Proposed value |
 | --- | --- |
-| Protocol version | `1.0-draft.1`, matched exactly |
-| Transport | HTTPS; JSON bodies use `application/json` |
-| Identity JWT signature | ES256 |
-| Identity JWT header | `typ: hap-identity+jwt`; `kid` selects a configured issuer key |
-| Identity lifetime | At most 300 seconds |
+| Protocol version | `1.0-draft.2`, matched exactly |
+| Transport | HTTPS |
+| Token request body | `application/x-www-form-urlencoded` |
+| Token response body | `application/json`, with `Cache-Control: no-store` |
+| Access token | Signed JWT following RFC 9068; `typ: at+jwt` |
+| Token signature | RS256 baseline, as required for RFC 9068 interoperability |
+| Key selection | `kid` resolves through the configured trusted issuer |
+| Token lifetime | At most 300 seconds |
 | Accepted clock skew | At most 30 seconds |
-| Payer verification session | 300 seconds from session creation |
-| Payer access grant | At most 900 seconds; never beyond its authorization session |
-| Token and session responses | `Cache-Control: no-store` |
-| Retry record retention | At least 15 minutes |
+| Presenter binding | DPoP; `cnf.jkt` identifies the client's key |
+| Initial permission | `claim.status.read` |
+| Initial record rule | Claims with the authorized billing-provider NPI |
 
-The token type `hap-identity+jwt` is a proposed HAP identifier, not an IANA registration.
-Deployments configure endpoints and trusted issuers directly. Public discovery is optional.
+Additional algorithms require explicit configuration. Token-supplied key URLs never establish trust.
 
-## Trust and credentials
+## Request a grant from the intermediary
 
-The identity service verifies the organization responsible for each enrolled client.
-It binds enrollment credentials to that identity and supports credential suspension and revocation.
-Each client enrolls separately with each identity service it uses.
+The client calls the intermediary's OAuth token endpoint, such as `POST /oauth/token`.
+It authenticates using its enrollment credentials and supplies a DPoP proof.
+The proof establishes key possession; the intermediary also validates the enrollment credentials.
 
-The payer explicitly configures trusted issuers and their keys.
-A key URL supplied by a token does not establish trust.
-The combination of issuer and subject identifies a client; subject strings from different issuers are separate identities.
+| Form parameter | Value |
+| --- | --- |
+| `grant_type` | `client_credentials` |
+| `resource` | Intended payer API, such as `https://payer.example/rcm` |
+| `scope` | `claim.status.read` |
+| `hap_version` | `1.0-draft.2` |
+| `authorization_details` | JSON array containing the single provider-access object below |
 
-| Credential | Issuer | Use |
-| --- | --- | --- |
-| Enrollment credential | Identity service | Authenticate the client to that service only. |
-| Identity token | Identity service | Present the enrolled client identity to the intended payer. |
-| Access token | Payer | Authorize operations on records within the payer's grant. |
-
-The client keeps enrollment credentials away from the payer.
-The payer accepts its own access token at the claim service, not the identity service's token.
-The identity service never receives the payer access token or record-specific grant.
-Consortium membership and enrollment do not themselves grant record access.
-
-## Get an identity token
-
-Use the identity service's OAuth token endpoint with `grant_type=client_credentials`, scope `hap.identity`, and the intended payer resource.
-Client authentication uses the agreed enrollment method.
-The DPoP proof establishes possession of a key; it does not replace enrollment authentication.
-
-```http
-POST /oauth/token HTTP/1.1
-Host: identity.example
-Authorization: Basic <enrollment-client-credentials>
-DPoP: <proof-for-this-token-request>
-Content-Type: application/x-www-form-urlencoded
-
-grant_type=client_credentials&scope=hap.identity&resource=https%3A%2F%2Fpayer.example%2Fhap%2Fv1
+```json
+[
+  {
+    "type": "hap_provider_access",
+    "provider_npi": "<enrolled-provider-npi>",
+    "record_rule": "billing_provider_claims"
+  }
+]
 ```
 
-The response uses the OAuth fields `access_token`, `token_type: DPoP`, `expires_in`, and `scope: hap.identity`.
-The OAuth field name `access_token` does not give this identity token permission to read claims.
-The request contains no claim scopes, record references, or payer verification values.
+`hap_provider_access` and its fields are proposed HAP definitions, not existing industry registrations.
+The first pilot permits one provider-access object per token.
+The NPI is a string with its original formatting.
+The intermediary checks it against the verified delegation; the request does not establish that delegation.
 
-### Identity JWT fields
+The intermediary grants only supported, requested permissions within its delegated authority.
+If enrollment, provider delegation, or the payer-approved policy does not permit access, it refuses token issuance.
+Unsupported versions fail explicitly. Unknown fields or record rules never expand access.
+OAuth and rich authorization request errors follow the linked standards.
 
-| Field | HAP use |
+### Successful token response
+
+```json
+{
+  "hap_version": "1.0-draft.2",
+  "access_token": "<intermediary-signed-access-token>",
+  "token_type": "DPoP",
+  "expires_in": 300,
+  "scope": "claim.status.read",
+  "authorization_details": [
+    {
+      "type": "hap_provider_access",
+      "provider_npi": "<enrolled-provider-npi>",
+      "record_rule": "billing_provider_claims"
+    }
+  ]
+}
+```
+
+Examples contain placeholders, not valid credentials or production identifiers.
+The response and signed token carry the same granted permissions and provider constraints.
+A grant never outlives the verified delegation or another applicable authorization limit.
+
+## Access token fields
+
+Use the registered fields and validation rules in RFC 9068.
+HAP adds the provider constraints and draft version below.
+
+| Field | Meaning |
 | --- | --- |
-| `iss` | Configured identity service issuer |
-| `sub` | Enrolled client identity within that issuer |
-| `client_id` | Client identifier; the draft example uses the same value as `sub` |
+| `iss` | Intermediary issuer approved to grant this access |
+| `sub`, `client_id` | Enrolled automated client; client credentials use the client as the subject |
+| `aud` | Intended payer API, matched exactly |
+| `iat`, `exp`, `jti` | Issue time, expiry, and unique token identifier |
+| `scope` | Granted operation scope; initially `claim.status.read` |
+| `cnf.jkt` | Client DPoP public key thumbprint |
+| `hap_version` | `1.0-draft.2` |
 | `organization_id` | Organization responsible for the client |
-| `aud` | Intended payer identity-validation service |
-| `iat`, `exp` | Issue and expiry times |
-| `jti` | Unpredictable token identifier for status and replay controls |
-| `scope` | Fixed value `hap.identity` |
-| `hap_version` | `1.0-draft.1` |
-| `cnf.jkt` | Thumbprint of the client's DPoP public key |
+| `delegation_id` | Opaque reference to the verified provider delegation maintained by the issuer |
+| `authorization_details` | The single granted `hap_provider_access` object |
 
-The token contains identity information only, without patient data, claim permissions, record references, or verification answers.
-Do not encode protected information into apparently opaque identifiers.
+All fields in this table are required for this draft.
+Missing provider constraints never imply unrestricted access.
+The issuer and client identifier together identify the client.
+Delegation references contain no patient or claim information.
+Enrollment credentials remain between client and intermediary.
 
-The payer validates the trusted issuer, signature, audience, times, version, token type, and presenter binding.
-Unsigned tokens, unsupported algorithms, expired tokens, and invalid proofs fail authentication.
-The payer uses the RFC validation rules above with these required HAP checks and settings.
+## Call the payer directly
 
-The payer can validate the signed token locally.
-Any external token-status request contains identity information only.
-Short expiry limits the lifetime of an issued token; immediate issuer-side revocation requires a configured status mechanism.
-
-## Start a payer session
+The client presents the access token at the payer's business endpoint:
 
 ```http
-POST /hap/v1/sessions HTTP/1.1
+POST /rcm/claim-status HTTP/1.1
 Host: payer.example
-Authorization: DPoP <identity-token>
+Authorization: DPoP <intermediary-signed-access-token>
 DPoP: <proof-for-this-request-and-token>
-Idempotency-Key: request_example_01
 Content-Type: application/json
 ```
 
-```json
-{
-  "hap_version": "1.0-draft.1",
-  "requested_scopes": ["claim.status.read"]
-}
-```
+This endpoint illustrates credential presentation only. The business profile will define the claim-status path and body.
+The payer does not exchange this token for another token or start a verification session.
 
-The payer authenticates the client before evaluating the requested scopes.
-It binds the session to the issuer, subject, organization, and client key.
-Unsupported versions fail before payer verification starts.
+The payer's verifier checks:
 
-If the payer needs verification information, it returns HTTP 201:
+1. The issuer is trusted to issue this kind of grant, and the signature and token type are valid.
+2. The audience, draft version, token times, and applicable revocation state are valid.
+3. The DPoP proof matches the client's key and passes freshness, nonce, and replay checks.
+4. The requested operation is covered by the granted scope and the payer's configured issuer policy.
+5. The requested record satisfies the provider constraint and any local deny rule.
 
-```json
-{
-  "hap_version": "1.0-draft.1",
-  "session_id": "session_example",
-  "state": "payer_verification_required",
-  "requested_scopes": ["claim.status.read"],
-  "granted_scopes": [],
-  "expires_in": 300,
-  "verification": {
-    "required_fields": ["member_id", "provider_npi", "date_of_service"]
-  }
-}
-```
+The initial record rule matches the claim's billing-provider NPI to the token's `provider_npi`.
+A match to a rendering, referring, or unrelated provider does not satisfy this rule.
+The payer checks the stored claim relationship before releasing data, regardless of identifiers supplied in the request.
+Other record relationships require a versioned extension agreed by the payer.
 
-The supported verification fields are `member_id`, `provider_npi`, and `date_of_service`, all strings.
-The payer can request a subset. Dates use `YYYY-MM-DD`; identifiers retain their formatting.
-The response names required fields without prefilling protected values.
-Additional verification methods or fields need an agreed binding extension.
+The payer retains the right to block an issuer, client, provider, or operation.
+Failures reject the request without a verification questionnaire or automatic fallback to the earlier session flow.
+Errors follow the access-token and DPoP standards and omit protected record details.
 
-The payer decides which evidence establishes access under its policy.
-Knowledge of a lookup field alone does not establish authority.
-If existing evidence suffices, the payer can grant access immediately without requesting more verification.
+This is credential validation and limited authorization enforcement at the payer boundary.
+The intermediary performs organization checks, client authentication, provider delegation checks, and access decisions under the agreed policy.
 
-## Complete payer verification
+## Expiry and revocation
 
-Send `POST /hap/v1/sessions/{session_id}/verification` with an identity token, a DPoP proof, and a separate idempotency key.
-The body contains `hap_version` and a `verification_information` object with exactly the fields the payer requested.
-Values pass directly to the payer.
+The intermediary suspends enrollment credentials and delegations when their authority ends.
+It stops new token issuance and exposes token status or another agreed revocation mechanism.
+The trust agreement specifies how quickly the payer's verifier learns about revocations.
 
-The payer checks that the session belongs to the same client and key.
-A session identifier alone provides no access.
-A failed verification marks the session `denied`; further attempts follow payer policy and attempt limits.
-The payer limits repeated verification attempts.
-The response never supplies expected answers or discloses record existence to an unauthorized client.
+Local signature validation alone can accept a previously issued token until expiry, including permitted clock skew.
+A shorter revocation window needs current status information, such as authenticated introspection or an agreed status feed.
+If required status information is unavailable or too old, the verifier rejects the request.
+The protocol does not claim immediate revocation from short token lifetimes alone.
 
-An expired identity token can be replaced during an unexpired session.
-The replacement retains the same issuer, subject, organization, and key.
-An expired verification session requires a new request.
+Online status checks carry token information only, without patient identifiers, claim identifiers, or business request bodies.
+An expired grant requires another intermediary-issued token after current authorization checks.
+Renewal never expands the verified delegation or payer-approved policy.
+Business operation retries and idempotency belong to their operation contracts.
 
-Successful verification returns HTTP 200:
+## Data boundaries
 
-```json
-{
-  "hap_version": "1.0-draft.1",
-  "session_id": "session_example",
-  "state": "granted",
-  "requested_scopes": ["claim.status.read"],
-  "granted_scopes": ["claim.status.read"],
-  "expires_in": 900,
-  "grant": {
-    "access_token": "<payer-issued-access-token>",
-    "token_type": "DPoP",
-    "resource": "https://payer.example/rcm",
-    "expires_in": 900
-  }
-}
-```
+The intermediary now handles identity, provider delegation evidence, requested scopes, provider constraints, and the access tokens it issues.
+This replaces the earlier identity-only intermediary boundary.
+Those enrollment and delegation records exclude patient and claim details.
 
-All examples use invented identifiers or placeholders.
+Patient identifiers, claim identifiers, claim payloads, clinical documents, verification answers containing patient data, and protected call content stay with the client and payer.
+Public discovery metadata contains no protected information.
+Do not encode protected information into apparently opaque identifiers.
+Operational logs omit credentials, tokens, protected business payloads, and delegation evidence.
 
-## Enforce the grant
-
-The first scope, `claim.status.read`, permits claim-status reading within the authorized record set.
-The granted set is nonempty and contains only supported scopes from the request.
-The payer returns `granted_scopes` explicitly.
-An empty set results in denial. Unknown scopes never expand access.
-
-The payer binds its access token to the verified client, the same DPoP key, the granted scopes, record permissions, payer service, and expiry.
-It checks those limits and revocation on every protected request.
-Broader provider-level access still has explicit record boundaries.
-Additional records or actions can require a new decision.
-
-Every session request validates the identity token and DPoP proof.
-Proof freshness, replay handling, nonces, and authentication errors follow RFC 9449.
-Required DPoP tokens cannot be downgraded to Bearer tokens.
-
-A new identity token does not extend an existing grant.
-Revocation of a session revokes every grant issued for it.
-The grant permits access; it does not establish claim acceptance, adjudication, payment, or an appeal filing date.
-Claim-status request and result schemas belong to the business protocol.
-
-### Read session status
-
-Use `GET /hap/v1/sessions/{session_id}` with an identity token and DPoP proof.
-Only the session's client and key can read or resume it.
-The response does not repeat verification answers or access credentials.
-
-| State | Meaning |
-| --- | --- |
-| `payer_verification_required` | More verification information is needed; no access token. |
-| `granted` | Access is permitted within the returned scope and internal record limits. |
-| `denied` | Access was refused; no access token. |
-| `expired` | The session or grant expired; access is unusable. |
-| `revoked` | The payer withdrew access; access is unusable. |
-
-## Retries and errors
-
-Session creation and verification submission accept `Idempotency-Key`.
-Clients supply a key for retryable operations. Keys contain no protected information.
-The payer binds each key to the authenticated client, operation, and request body.
-A changed body with the same key returns `idempotency_conflict`.
-
-An identical retry returns the current session result without repeating authorization side effects or extending access.
-It can return the original credential only while that credential remains valid.
-Retained responses need credential-level protection.
-
-Application errors use this envelope:
-
-```json
-{
-  "hap_version": "1.0-draft.1",
-  "error": {
-    "code": "payer_verification_failed",
-    "message": "Payer verification did not establish access.",
-    "retryable": false
-  }
-}
-```
-
-OAuth and DPoP authentication errors keep their standard status codes, headers, and response behavior.
-The HAP envelope does not replace those rules.
-Messages omit protected data, credentials, verification answers, and other clients' session details.
-Identity failures omit session details before authentication.
-
-| HAP code | HTTP status |
-| --- | --- |
-| `invalid_request`, `version_unsupported`, `scope_not_supported` | 400 |
-| `identity_invalid`, `identity_expired` | 401 |
-| `issuer_not_trusted`, `client_not_accepted`, `payer_verification_failed`, `access_denied`, `session_revoked` | 403 |
-| `session_not_found` | 404 |
-| `idempotency_conflict` | 409 |
-| `session_expired` | 410 |
-| `rate_limited` | 429 |
-| `temporarily_unavailable` | 503 |
-
-`scope_not_supported` means no requested scope is supported.
-`session_not_found` means no session is visible to the authenticated client.
-Clients do not automatically retry a non-retryable denial.
-For 429 or 503 responses, they honor `Retry-After` when present.
-Unknown fields never expand permissions; unsupported verification requirements fail explicitly.
-
-## Data handling and voice
-
-Identity service traffic and logs contain identity events only.
-The service does not receive claim scopes, record-specific grants, verification answers, protected claim content, documents, recordings, or transcripts.
-Public metadata, scope strings, and identity tokens contain no protected health information.
-
-Client and payer operational logs omit verification answers, claim payloads, credentials, and tokens.
-Payers can retain business records within protected systems under their retention policy.
-
-Any identity audio feed excludes protected content and verification answers.
-Payer-local software can perform identity checks without forwarding call content.
-A voice binding needs live-call correlation, presenter proof, and replay protection before it can claim conformance.
-A spoken token, code, or watermark alone does not authenticate the client.
+A verifier that sees business requests runs within the payer's protected environment.
+External introspection or identity systems receive no forwarded claim payloads or protected recordings and transcripts.
+An identity-only audio feed, if a voice binding supports it, excludes protected content.
+Voice bindings need secure call correlation and proof of credential control before claiming conformance.
+A spoken token or an audio watermark alone is insufficient.
 
 ## Check an implementation
 
-Use invented or redacted values, never production data or live credentials.
-Check these cases for each participant and binding:
+Use invented data and test credentials.
+Check successful intermediary issuance and direct payer acceptance, plus these failure cases:
 
-- Reject untrusted issuers, wrong audiences, invalid or expired tokens, incorrect keys, and replayed proofs.
-- Reject an identity token at the claim service and access outside the granted scopes or record limits.
-- Keep verification values and claim content between client and payer, including audio feeds and logs.
-- Prevent another client from reading or resuming a session.
-- Enforce session and grant expiry, denial, and revocation.
-- Prevent retries from repeating side effects or extending access.
-- Reject unsupported versions and verification requirements explicitly.
+- Untrusted issuer, unapproved grant policy, invalid signature, wrong audience, or unsupported version.
+- Invalid client credentials, missing or withdrawn provider delegation, or requests beyond the issuer's delegated policy.
+- Expired token, revoked access, stale required status, incorrect key, or replayed DPoP proof.
+- Wrong operation scope or a claim outside the authorized billing-provider relationship.
+- Local payer blocks and attempts to widen access through unknown fields or record rules.
+- Patient or claim data entering issuer traffic, logs, delegation evidence, or media feeds.
 
-Implementations name their supported binding and protocol version.
-Breaking wire changes require a new version.
-A production release needs published schemas, binding requirements, and interoperable implementations.
+A production release still needs schemas, a trust-policy profile, a verifier implementation, and independent interoperability checks.
+See the [pilot roadmap](../../docs/roadmap.md).
 
-Voice-to-digital switching, intermediary federation, shared directory handles, additional scopes, and additional verification methods remain optional extensions.
-Extensions preserve payer authorization and the identity-only intermediary boundary.
-See the [pilot roadmap](../../docs/roadmap.md) for release work.
+## Changes from draft 1
+
+Draft 2 replaces identity-only attestations with intermediary-issued access grants.
+It deletes the payer session and verification endpoints, `hap.identity`, and the payer-issued access-token step.
+It uses the standard OAuth scope and access-token fields instead of the old session-state response.
+The access-token lifetime is now at most 300 seconds, replacing the earlier 900-second payer grant.
+It adopts the RFC 9068 access-token profile and its RS256 baseline instead of the earlier ES256 identity-token profile.
+The intermediary can process provider delegation and access metadata while claim content remains between client and payer.
+
+Draft 1 remains in Git history. Its endpoints, token types, and flow are not compatible with this version.

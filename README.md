@@ -15,7 +15,7 @@ It does not yet contain a complete protocol, executable reference implementation
 | [Architecture](docs/architecture.md) | Protocol layers and authority boundaries |
 | [Business capabilities](docs/capabilities.md) | Nine proposed business functions |
 | [HAP-1 identity and access](spec/identity/hap-1.md) | Plain-language walkthrough of the partner-review draft |
-| [HAP-1 HTTP reference](spec/identity/hap-1-http.md) | Implementation details for version `1.0-draft.1` |
+| [HAP-1 HTTP reference](spec/identity/hap-1-http.md) | Intermediary-issued grants for version `1.0-draft.2` |
 | [Roadmap](docs/roadmap.md) | Work required for the first complete pilot |
 | [Contributing](CONTRIBUTING.md) | How to propose changes |
 | [Security](SECURITY.md) | Data handling and vulnerability reporting |
@@ -24,14 +24,15 @@ It does not yet contain a complete protocol, executable reference implementation
 
 The first proposed pilot is authorized claim-status access.
 
-1. An identity intermediary authenticates an enrolled client.
-2. The payer validates the client's identity.
-3. The payer establishes the client's authority to access the requested records.
-4. The payer issues a scoped access grant.
-5. The client requests claim status directly from the payer.
-6. The payer returns a structured result with its source and observation time.
+1. The payer approves an intermediary and its access-grant policy.
+2. The intermediary verifies the client and its provider delegation.
+3. The intermediary authenticates the client and issues a scoped access token.
+4. The client requests claim status directly from the payer using that token.
+5. The payer's verifier checks token validity, operation scope, record limits, and local blocks.
+6. The payer returns the authorized result with its source and observation time.
 
-The intermediary handles identity only. Claim data and payer verification values pass directly between the client and payer.
+The payer does not require separate client enrollment, login, verification questions, or payer-issued access tokens.
+The intermediary handles identity, provider delegation, and access grants. Claim data passes directly between client and payer.
 
 ## Inspiration and existing standards
 
@@ -75,9 +76,8 @@ npm run docs:links
 
 ### Publishing
 
-The Mintlify site is claimed. Connect this repository in the project's
-[Git Settings](https://app.mintlify.com/settings/project/git-settings) to deploy future changes.
-Select branch `main`. Keep the documentation directory at the repository root.
+The connected Mintlify project deploys from `main` at the repository root.
+Manage the connection in the project's [Git Settings](https://app.mintlify.com/settings/project/git-settings).
 
 GitHub Actions checks the documentation build and internal links.
 The temporary agent deployment workflow applied only before the site was claimed.

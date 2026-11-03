@@ -1,98 +1,93 @@
 ---
 title: "HAP-1 identity and access"
-description: "How an automated client identifies itself to a payer and gets permission to access information."
+description: "Trusted intermediaries handle identity and access decisions so payers can accept signed grants."
 ---
 
-HAP-1 lets an automated client identify itself to a payer and request access to specific information.
+HAP-1 lets a payer accept access grants from trusted intermediaries instead of running its own client authentication process.
 
-For example, an RCM agent wants to check a claim's status.
-A trusted identity service confirms which client is making the request.
-The payer decides whether to give that client access.
-The client gets the claim information directly from the payer.
+The intermediary verifies the client, checks its authority to act for a provider, and issues a signed access token.
+The client uses that token to request information directly from the payer.
+The payer's gateway validates the token and enforces its limits.
 
-HAP-1 is a working draft for partner review. The first proposed pilot supports claim-status reading.
+**Draft version:** `1.0-draft.2`. Working draft for partner review; the first proposed pilot supports claim-status reading.
 
-**Draft version:** `1.0-draft.1`.
+## Who does the work
 
-## Who takes part
-
-| Participant | What they do |
+| Participant | Responsibility |
 | --- | --- |
-| Client | An RCM agent or other automated caller asks the payer for access. |
-| Identity service | Confirms the enrolled client's identity and the organization responsible for it. |
-| Payer | Decides which information the client can access and which actions it can take. |
+| Client | Enroll with an intermediary, prove control of its key, and request access. |
+| Intermediary | Verify the organization and client, verify provider delegation, and issue access grants under the payer's agreed policy. |
+| Payer | Choose trusted issuers, accept grants within agreed limits, and return only the authorized information. |
 
-Each payer chooses the identity services it trusts.
-The client enrolls with an identity service before using it.
+The trust model resembles certificate authorities: the payer relies on an approved issuer instead of repeating its identity checks.
+HAP also requires that issuer to verify the client's permission to act for the provider.
 
 ## How it works
 
-1. **Identify the client.** The client signs in to its identity service and gets a short-lived identity token for the intended payer.
-2. **Ask for access.** The client presents that token to the payer and requests an action, such as reading claim status.
-3. **Complete the payer's checks.** If the payer needs verification information, the client sends it directly to the payer.
-4. **Use the granted access.** The payer returns permission for specific actions and records, or denies the request.
+1. **Agree on trust.** The payer approves an intermediary's signing keys, verification policy, and permitted grant types.
+2. **Verify once at enrollment.** The intermediary verifies the client and its provider delegation. It maintains those checks as relationships change.
+3. **Get a short-lived grant.** The client authenticates to the intermediary and requests access for an enrolled provider.
+4. **Call the payer directly.** The client presents the signed grant and proves control of its key. The payer enforces the grant's limits.
 
 ```mermaid
 sequenceDiagram
     participant C as Client
-    participant I as Identity service
-    participant P as Payer
-    C->>I: Identify the client
-    I-->>C: Identity token
-    C->>P: Request access with the token
-    opt Payer needs more information
-        P->>C: Request verification
-        C->>P: Send verification directly
-    end
-    alt Access granted
-        P-->>C: Access token with limits
-        C->>P: Request authorized information
-        P-->>C: Return information
-    else Request denied
-        P-->>C: Denial
+    participant I as Trusted intermediary
+    participant P as Payer gateway and API
+    Note over I,P: Payer approves issuer and grant policy in advance
+    C->>I: Authenticate and request provider-scoped access
+    I->>I: Check identity, provider delegation, and permitted actions
+    alt Grant approved
+        I-->>C: Signed access token
+        C->>P: Request information with token and key proof
+        P->>P: Validate grant and match record limits
+        P-->>C: Authorized information or rejection
+    else Grant refused
+        I-->>C: Denial
     end
 ```
 
-## Identity and permission
+## What the payer implements
 
-The identity service confirms who the client is.
-The payer decides what that client can do.
-These decisions use separate tokens: an identity token from the identity service and an access token from the payer.
+A standard gateway or verifier component handles token signatures, trusted issuers, expiry, and proof of key possession.
+It also checks the requested action and whether the requested record falls within the grant.
+The payer configures this component once for each trust policy.
 
-The payer checks the client's authority to act for the provider under its own policy.
-It can request information such as a member ID, provider NPI, or service date.
-Those values help the payer perform its checks; knowing them does not by itself establish authority.
+The payer does not enroll clients, collect their login credentials, ask verification questions, or issue another access token.
+Provider delegation checks and access decisions happen at the intermediary under the agreed policy.
 
-Permission has limits: allowed actions, allowed records, the intended payer service, and an expiry time.
-The payer checks those limits on every request.
-It can deny access or revoke a previous grant.
+The payer keeps a local right to block an issuer, client, provider, or operation.
+Its existing rules connect grant identifiers to its own records.
+
+**Credential validation still happens at the payer boundary.** The gateway performs it without a separate payer authentication workflow.
+
+## What an access grant means
+
+A grant identifies the client, provider, intended payer, permitted action, record limits, and expiry time.
+An identity certificate alone is insufficient: the intermediary also checks provider delegation and the payer's delegated access policy.
+
+For the first pilot, `claim.status.read` permits reading claims whose billing-provider NPI matches the authorized provider.
+The intermediary verifies authority for that provider before issuing the grant.
+Other record relationships need an agreed extension.
 
 ## Where the data goes
 
-The identity service handles client identity only.
-Requested claim permissions, verification answers, access grants, and claim information pass directly between the client and payer.
+The intermediary handles organization identity, provider delegation evidence, requested permissions, and access grants.
+It does not need patient identifiers, claim identifiers, claim payloads, clinical documents, or call audio to make these decisions.
+Those data stay between the client and payer.
 
-The identity service does not receive patient details, claim documents, or recordings and transcripts containing protected information.
-This boundary also applies to logs and any audio feed used for identity checks.
+Provider delegation evidence excludes patient and claim details.
+A verifier component that handles business requests runs within the payer's protected environment.
+External status checks contain token information only, without claim requests or responses.
 
-## What the first pilot supports
+## Standards and implementation
 
-The initial permission is `claim.status.read`: reading claim status within the records the payer authorizes.
-Claim submission, changes, payment, and appeals need separate permissions and business operations.
+The HTTP proposal uses [OAuth client credentials](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.4),
+[signed access tokens](https://www.rfc-editor.org/rfc/rfc9068.html), and
+[proof of key possession](https://www.rfc-editor.org/rfc/rfc9449.html).
+The [HTTP reference](hap-1-http.md) defines the HAP-specific grant fields and trust rules.
 
-The first technical proposal uses HTTP.
-Voice workflows can use the same identity model after a voice binding defines how identity connects securely to a live call.
-A2A can carry later agent tasks when both parties support it.
+Voice and A2A bindings can use the same trust model after they define credential presentation for their channels.
 
-## Use existing security standards
-
-HAP-1 uses established mechanisms for the security work:
-
-| Mechanism | What it does |
-| --- | --- |
-| [OAuth 2.0 client credentials](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.4) | Lets an enrolled client authenticate to its identity service. |
-| [Signed JWTs](https://www.rfc-editor.org/rfc/rfc7519.html) with [JWT security practices](https://www.rfc-editor.org/rfc/rfc8725.html) | Carry identity information that the payer can validate. |
-| [DPoP](https://www.rfc-editor.org/rfc/rfc9449.html) | Binds tokens to the client's key, so a copied token alone is insufficient. |
-
-The [HTTP reference](hap-1-http.md) defines the HAP-specific fields, endpoints, permissions, and time limits.
-It links to the underlying standards for their validation rules.
+Draft 2 replaces the earlier payer verification sessions and payer-issued access tokens.
+Implementations select the exact draft version; the two flows are not interchangeable.

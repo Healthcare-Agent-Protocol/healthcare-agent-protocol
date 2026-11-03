@@ -13,7 +13,9 @@ It does not yet provide an executable healthcare agent service.
     Read the [architecture](/docs/architecture) to separate identity, authorization, business operations, and transport.
   </Step>
   <Step title="Review identity and access">
-    Read [HAP-1](/spec/identity/hap-1), version `1.0-draft.1`.
+    Read [HAP-1](/spec/identity/hap-1), version `1.0-draft.2`.
+    The intermediary verifies the client and provider delegation, then issues access grants under payer-approved policy.
+    The payer validates those grants without a separate login or verification session.
     Its first scope is `claim.status.read`.
     The [HTTP reference](/spec/identity/hap-1-http) contains the endpoint and field details.
   </Step>
