@@ -12,6 +12,8 @@ The client gets the claim information directly from the payer.
 
 HAP-1 is a working draft for partner review. The first proposed pilot supports claim-status reading.
 
+**Draft version:** `1.0-draft.1`.
+
 ## Who takes part
 
 | Participant | What they do |
