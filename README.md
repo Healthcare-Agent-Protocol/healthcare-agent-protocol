@@ -53,7 +53,7 @@ This repository uses the [Apache License 2.0](LICENSE).
 ## Documentation site
 
 The documentation uses [Mintlify](https://www.mintlify.com/docs/quickstart).
-Read the [live documentation](https://healthcare-agent-protocol.mintlify.site).
+Read the [live documentation](https://superdial-2e67a944.mintlify.app).
 Site settings and navigation live in [docs.json](docs.json).
 Pages use the existing Markdown documents and the MDX introduction pages.
 
