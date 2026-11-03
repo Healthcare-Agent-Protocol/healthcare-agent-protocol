@@ -1,3 +1,8 @@
+---
+title: "HAP-1 identity and access"
+description: "Partner-review draft 1.0-draft.1: client identity, payer verification, and scoped grants."
+---
+
 HAP-1 lets a payer verify an automated caller's identity and grant scoped access through the payer's own verification process. The caller and payer exchange all claim data directly. The trusted intermediary vouches for identity only.
 
 | Item | Value |

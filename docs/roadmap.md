@@ -1,4 +1,7 @@
-# Pilot roadmap
+---
+title: "Pilot roadmap"
+description: "The work required for an interoperable claim-status pilot."
+---
 
 The first milestone is an interoperable claim-status pilot between one client, one identity intermediary, and one payer.
 The repository currently contains design documents only.

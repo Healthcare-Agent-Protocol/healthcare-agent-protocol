@@ -1,0 +1,65 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Healthcare Agent Protocol",
+  "colors": {
+    "primary": "#0F766E",
+    "light": "#14B8A6",
+    "dark": "#0D9488"
+  },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get started",
+        "pages": [
+          "index",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Protocol design",
+        "pages": [
+          "docs/architecture",
+          "docs/capabilities"
+        ]
+      },
+      {
+        "group": "Identity and access",
+        "pages": [
+          "spec/identity/hap-1"
+        ]
+      },
+      {
+        "group": "Project",
+        "pages": [
+          "docs/roadmap",
+          "community/contributing",
+          "community/security"
+        ]
+      }
+    ]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Read HAP-1",
+      "href": "/spec/identity/hap-1"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol"
+    }
+  }
+}

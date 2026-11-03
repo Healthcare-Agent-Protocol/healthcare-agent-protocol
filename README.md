@@ -48,3 +48,25 @@ This project does not claim affiliation with UCP or A2A, industry endorsement, o
 ## License
 
 This repository uses the [Apache License 2.0](LICENSE).
+
+## Documentation site
+
+The documentation uses [Mintlify](https://www.mintlify.com/docs/quickstart).
+Site settings and navigation live in [docs.json](docs.json).
+Pages use the existing Markdown documents and the MDX introduction pages.
+
+Use Node.js 24 LTS.
+
+```bash
+npm ci
+npm run docs:dev
+```
+
+Open `http://localhost:3000`.
+
+Before a push, run:
+
+```bash
+npm run docs:validate
+npm run docs:links
+```

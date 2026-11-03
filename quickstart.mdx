@@ -1,0 +1,52 @@
+---
+title: "Work with the draft"
+description: "Read the protocol proposal, preview these docs, and prepare for the claim-status pilot."
+---
+
+The repository contains protocol design documents and the supplied HAP-1 proposal.
+It does not yet provide an executable healthcare agent service.
+
+## Read the proposed contract
+
+<Steps>
+  <Step title="Understand the boundaries">
+    Read the [architecture](/docs/architecture) to separate identity, authorization, business operations, and transport.
+  </Step>
+  <Step title="Review identity and access">
+    Read [HAP-1](/spec/identity/hap-1), version `1.0-draft.1`.
+    Its first scope is `claim.status.read`.
+  </Step>
+  <Step title="Define the first business operation">
+    Review the [capability catalog](/docs/capabilities) and [open pilot decisions](/docs/roadmap).
+    Claim-status request and result schemas remain to be specified.
+  </Step>
+</Steps>
+
+## Preview the documentation
+
+Use Node.js 24 LTS.
+
+```bash
+git clone https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol.git
+cd healthcare-agent-protocol
+npm ci
+npm run docs:dev
+```
+
+Open `http://localhost:3000`.
+
+## Check a documentation change
+
+```bash
+npm run docs:validate
+npm run docs:links
+```
+
+These commands check the documentation build and internal links.
+They do not certify protocol conformance.
+
+## Join the design work
+
+Propose changes through the [GitHub repository](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol).
+Follow the [contribution guide](/community/contributing).
+Use invented examples only.

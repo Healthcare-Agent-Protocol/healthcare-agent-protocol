@@ -1,0 +1,53 @@
+---
+title: "Healthcare Agent Protocol"
+description: "Shared business contracts for agents working with payers, providers, and revenue cycle management organizations."
+---
+
+Healthcare Agent Protocol (HAP) defines a proposed way for healthcare agents to discover operations, establish access, and exchange structured results.
+
+<Warning>
+  HAP is an early design draft. The protocol, reference implementation, and conformance suite are not complete.
+</Warning>
+
+## Start with a business operation
+
+A provider or RCM agent should be able to request claim status using a shared contract.
+The payer decides whether the agent may access those records.
+The result should state the claim status, its source, and when the payer observed it.
+
+The first proposed pilot supports claim-status reading under the scope `claim.status.read`.
+
+<CardGroup cols={2}>
+  <Card title="Understand the architecture" icon="layer-group" href="/docs/architecture">
+    See how identity, access, business contracts, and transport fit together.
+  </Card>
+  <Card title="Explore business capabilities" icon="list-check" href="/docs/capabilities">
+    Review nine proposed functions for revenue cycle workflows.
+  </Card>
+  <Card title="Read HAP-1" icon="shield-halved" href="/spec/identity/hap-1">
+    Review the identity and access proposal, including its HTTP binding.
+  </Card>
+  <Card title="Review the pilot roadmap" icon="route" href="/docs/roadmap">
+    See the decisions and implementation work required for the first pilot.
+  </Card>
+</CardGroup>
+
+## Keep clear boundaries
+
+- The identity intermediary vouches for the enrolled client.
+- The payer controls access to its records and operations.
+- Claim data and payer verification values pass directly between client and payer.
+- A completed lookup can report a claim that remains pending.
+
+## Build on existing standards
+
+[UCP](https://ucp.dev/specification/overview/) inspires the organization of capabilities, versions, extensions, and transport bindings.
+[A2A](https://a2a-protocol.org/latest/specification/) is a proposed transport for agent tasks and results.
+The HAP-1 identity core also supports deployments without A2A.
+
+X12 005010 transactions, FHIR resources, and payer APIs can support integrations behind the business contracts.
+This project does not claim affiliation with UCP or A2A, industry endorsement, or production readiness.
+
+<Card title="Contribute to the draft" icon="code-pull-request" href="/community/contributing">
+  Propose a focused change with explicit behavior, authority boundaries, and conformance cases.
+</Card>

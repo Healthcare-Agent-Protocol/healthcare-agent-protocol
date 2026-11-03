@@ -1,0 +1,23 @@
+name: Deploy to Mintlify
+on:
+  push:
+    branches: ["main"]
+permissions:
+  id-token: write
+  contents: read
+concurrency:
+  group: mintlify-deploy
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run docs:validate
+      - run: npm run docs:links
+      - run: npx --no-install mint deploy --subdomain healthcare-agent-protocol

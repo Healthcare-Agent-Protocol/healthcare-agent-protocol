@@ -1,4 +1,7 @@
-# Proposed business capabilities
+---
+title: "Business capabilities"
+description: "Nine proposed business functions for healthcare revenue cycle workflows."
+---
 
 These nine functions organize the initial RCM business scope.
 The identifiers below are provisional design labels. They are not registered namespaces or published wire contracts.

@@ -1,4 +1,7 @@
-# Architecture
+---
+title: "Architecture"
+description: "Protocol layers, delegated authority, and business outcomes."
+---
 
 HAP separates identity, access decisions, business operations, and transport.
 This document describes the proposed architecture. It does not define a wire contract.
