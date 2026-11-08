@@ -17,8 +17,7 @@
       {
         "group": "Get started",
         "pages": [
-          "index",
-          "quickstart"
+          "index"
         ]
       },
       {
