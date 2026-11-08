@@ -1,0 +1,96 @@
+{
+  "name": "Example payer claim-status agent",
+  "description": "Read status and follow-up details for an authorized claim.",
+  "supportedInterfaces": [
+    {
+      "url": "https://payer.example/a2a",
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "version": "1.0-draft.2",
+  "capabilities": {
+    "extensions": [
+      {
+        "uri": "https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/spec/claims/claim-status.md#v1-draft-2",
+        "description": "HAP claim-status lookup, version 1.0-draft.2.",
+        "required": true,
+        "params": {
+          "operation": "rcm.claims.status.get",
+          "operation_version": "1.0-draft.2",
+          "request_schema": "https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.2/request.schema.json",
+          "response_schema": "https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.2/response.schema.json",
+          "supported_sections": [
+            "status",
+            "amounts",
+            "payments",
+            "denials",
+            "pending_requirements",
+            "service_lines",
+            "submission",
+            "review_options",
+            "remittance",
+            "coordination_of_benefits",
+            "reprocessing",
+            "follow_up",
+            "adjudication_context",
+            "reviews"
+          ],
+          "record_rule": "billing_provider_claims",
+          "hap_version": "1.0-draft.4",
+          "resource": "https://payer.example/rcm",
+          "issuer_policy_url": "https://payer.example/hap/issuer-policy",
+          "retry_window_seconds": 600
+        }
+      }
+    ]
+  },
+  "securitySchemes": {
+    "hap_access": {
+      "oauth2SecurityScheme": {
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://payer.example/oauth/token",
+            "scopes": {
+              "claim.status.read": "Read the authorized claim and its permitted follow-up details."
+            }
+          }
+        }
+      }
+    }
+  },
+  "securityRequirements": [
+    {
+      "schemes": {
+        "hap_access": {
+          "list": [
+            "claim.status.read"
+          ]
+        }
+      }
+    }
+  ],
+  "defaultInputModes": [
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "rcm.claims.status.get",
+      "name": "Claim-status lookup",
+      "description": "Get claim status, selected follow-up sections, and evidence.",
+      "tags": [
+        "claims",
+        "claim-status"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    }
+  ]
+}

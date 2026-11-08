@@ -1,0 +1,90 @@
+{
+  "operation": "rcm.claims.status.get",
+  "operation_version": "1.0-draft.2",
+  "request_id": "example-lookup-001",
+  "response_id": "example-snapshot-001",
+  "payer_id": "payer-example",
+  "authorization": "granted",
+  "outcome": "matched",
+  "observed_at": "2026-11-08T18:00:00Z",
+  "evidence": [
+    {
+      "evidence_id": "example-observation-1",
+      "source_type": "payer_api",
+      "source_organization_id": "payer-example",
+      "authority": "payer_confirmed",
+      "observed_at": "2026-11-08T18:00:00Z",
+      "source_reference": "example-payer-observation-1"
+    }
+  ],
+  "claim": {
+    "record_reference": "example-payer-record-1",
+    "payer_claim_number": "EXAMPLE-CLAIM-001",
+    "billing_provider_npi": "0000000000",
+    "service_period": {
+      "start": "2026-10-01",
+      "end": "2026-10-01"
+    },
+    "billed_amount": {
+      "amount": "150.00",
+      "currency": "USD"
+    },
+    "matched_on": [
+      "payer_claim_number",
+      "service_period",
+      "billed_amount"
+    ],
+    "evidence_ids": [
+      "example-observation-1"
+    ]
+  },
+  "sections": {
+    "status": {
+      "availability": "available",
+      "data": {
+        "phase": "pending",
+        "disposition": "unknown",
+        "received_date": "2026-10-03"
+      },
+      "evidence_ids": [
+        "example-observation-1"
+      ]
+    },
+    "pending_requirements": {
+      "availability": "available",
+      "data": [
+        {
+          "requirement_id": "example-requirement-1",
+          "description": "The payer requires an itemized bill.",
+          "status": "outstanding",
+          "required_from": "provider",
+          "due_date": "2026-12-01",
+          "submission_routes": [
+            {
+              "channel": "portal",
+              "url": "https://payer.example/documents"
+            }
+          ]
+        }
+      ],
+      "evidence_ids": [
+        "example-observation-1"
+      ]
+    },
+    "follow_up": {
+      "availability": "available",
+      "data": {
+        "next_step": "Provide the itemized bill.",
+        "follow_up_date": "2026-12-02",
+        "turnaround": {
+          "value": 10,
+          "unit": "business_days",
+          "starts_from": "Receipt of the requested itemized bill."
+        }
+      },
+      "evidence_ids": [
+        "example-observation-1"
+      ]
+    }
+  }
+}

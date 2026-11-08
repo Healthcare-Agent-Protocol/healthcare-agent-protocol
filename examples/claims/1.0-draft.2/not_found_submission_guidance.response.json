@@ -1,0 +1,41 @@
+{
+  "operation": "rcm.claims.status.get",
+  "operation_version": "1.0-draft.2",
+  "request_id": "example-lookup-001",
+  "response_id": "example-snapshot-001",
+  "payer_id": "payer-example",
+  "authorization": "granted",
+  "outcome": "not_found",
+  "observed_at": "2026-11-08T18:00:00Z",
+  "evidence": [
+    {
+      "evidence_id": "example-observation-1",
+      "source_type": "payer_api",
+      "source_organization_id": "payer-example",
+      "authority": "payer_confirmed",
+      "observed_at": "2026-11-08T18:00:00Z",
+      "source_reference": "example-payer-observation-1"
+    }
+  ],
+  "payer_guidance": {
+    "submission": {
+      "availability": "available",
+      "evidence_ids": [
+        "example-observation-1"
+      ],
+      "data": {
+        "applicability": "payer_policy",
+        "electronic_payer_id": "EXAMPLE-PAYER-ID",
+        "submission_routes": [
+          {
+            "channel": "portal",
+            "url": "https://payer.example/claims"
+          }
+        ],
+        "timely_filing_window_days": 90,
+        "timely_filing_window_unit": "calendar_days",
+        "timely_filing_starts_from": "Date of service under the stated payer policy."
+      }
+    }
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "operation": "rcm.claims.status.get",
+  "operation_version": "1.0-draft.2",
+  "request_id": "example-lookup-001",
+  "response_id": "example-snapshot-001",
+  "payer_id": "payer-example",
+  "authorization": "granted",
+  "outcome": "matched",
+  "observed_at": "2026-11-08T18:00:00Z",
+  "evidence": [
+    {
+      "evidence_id": "example-observation-1",
+      "source_type": "payer_api",
+      "source_organization_id": "payer-example",
+      "authority": "payer_confirmed",
+      "observed_at": "2026-11-08T18:00:00Z",
+      "source_reference": "example-payer-observation-1"
+    }
+  ],
+  "claim": {
+    "record_reference": "example-payer-record-1",
+    "payer_claim_number": "EXAMPLE-CLAIM-001",
+    "billing_provider_npi": "0000000000",
+    "service_period": {
+      "start": "2026-10-01",
+      "end": "2026-10-01"
+    },
+    "billed_amount": {
+      "amount": "150.00",
+      "currency": "USD"
+    },
+    "matched_on": [
+      "payer_claim_number",
+      "service_period",
+      "billed_amount"
+    ],
+    "evidence_ids": [
+      "example-observation-1"
+    ]
+  },
+  "sections": {
+    "status": {
+      "availability": "available",
+      "data": {
+        "phase": "adjudicated",
+        "disposition": "mixed"
+      },
+      "evidence_ids": [
+        "example-observation-1"
+      ]
+    },
+    "service_lines": {
+      "availability": "available",
+      "data": {
+        "items": [
+          {
+            "line_id": "example-line-1",
+            "procedure": {
+              "system": "payer",
+              "code": "EXAMPLE-SVC"
+            },
+            "service_period": {
+              "start": "2026-10-01",
+              "end": "2026-10-01"
+            },
+            "units": "1",
+            "status": {
+              "phase": "adjudicated",
+              "disposition": "paid"
+            },
+            "amounts": {
+              "billed": {
+                "amount": "75.00",
+                "currency": "USD"
+              },
+              "paid": {
+                "amount": "50.00",
+                "currency": "USD"
+              }
+            },
+            "evidence_ids": [
+              "example-observation-1"
+            ]
+          },
+          {
+            "line_id": "example-line-2",
+            "procedure": {
+              "system": "payer",
+              "code": "EXAMPLE-SVC"
+            },
+            "service_period": {
+              "start": "2026-10-01",
+              "end": "2026-10-01"
+            },
+            "units": "1",
+            "status": {
+              "phase": "adjudicated",
+              "disposition": "denied"
+            },
+            "amounts": {
+              "billed": {
+                "amount": "75.00",
+                "currency": "USD"
+              },
+              "paid": {
+                "amount": "0.00",
+                "currency": "USD"
+              }
+            },
+            "denials": [
+              {
+                "reason": "The payer reports a duplicate service line."
+              }
+            ],
+            "evidence_ids": [
+              "example-observation-1"
+            ]
+          }
+        ],
+        "page": {
+          "returned_count": 2,
+          "total_count": 2,
+          "complete": true
+        }
+      },
+      "evidence_ids": [
+        "example-observation-1"
+      ]
+    }
+  }
+}

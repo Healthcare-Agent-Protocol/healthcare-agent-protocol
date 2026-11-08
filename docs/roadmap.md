@@ -10,7 +10,7 @@ It does not yet implement a payer service or an executable client.
 1. Review HAP-1 draft 4, including the pre-call authentication proposal, with the pilot participants.
 2. Agree on payer-selected issuance paths, issuer trust, accepted provider delegation evidence, and grant policy.
 3. Publish schemas for payer-issued and intermediary-issued VDCs and provider constraints.
-4. Review the claim-status `1.0-draft.1` contract and validate its request and response schemas with pilot participants.
+4. Review the claim-status `1.0-draft.2` contract and validate its request and response schemas with pilot participants.
 5. Define payer-card discovery, destination policies, supported versions, and extension negotiation.
 6. Test the claim-status A2A 1.0 mapping and its VDC presentation between independent implementations.
 7. Agree on call-registration schemas, client authentication, correlation assurance, and both payer verification paths for a voice pilot.
@@ -44,8 +44,8 @@ Broader RCM capabilities follow after the first operation has stable contracts a
 
 ## Claim-status contract
 
-The [claim-status operation](../spec/claims/claim-status.md) defines business version `1.0-draft.1` and JSON Schema Draft 2020-12 files.
-It includes eleven invented request/response pairs and A2A envelopes.
+The [claim-status operation](../spec/claims/claim-status.md) defines business version `1.0-draft.2` and JSON Schema Draft 2020-12 files.
+It includes fifteen invented request/response pairs and A2A envelopes.
 The automated checks cover schema validation and cross-field failures; they do not verify a deployed payer's access enforcement.
 The pilot still needs source adapters, trusted issuer setup, a client, a payer service, and independent interoperability checks.
 

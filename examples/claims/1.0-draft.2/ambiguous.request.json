@@ -1,0 +1,25 @@
+{
+  "operation": "rcm.claims.status.get",
+  "operation_version": "1.0-draft.2",
+  "request_id": "example-lookup-001",
+  "payer_id": "payer-example",
+  "billing_provider_npi": "0000000000",
+  "claim": {
+    "lookup_method": "member_service",
+    "member_id": "EXAMPLE-MEMBER-001",
+    "patient": {
+      "date_of_birth": "1970-01-01"
+    },
+    "service_period": {
+      "start": "2026-10-01",
+      "end": "2026-10-01"
+    },
+    "billed_amount": {
+      "amount": "150.00",
+      "currency": "USD"
+    }
+  },
+  "requested_sections": [
+    "status"
+  ]
+}

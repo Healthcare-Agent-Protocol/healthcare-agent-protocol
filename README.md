@@ -26,7 +26,7 @@ It does not yet contain a complete protocol, executable client or payer service,
 ## First pilot
 
 The first proposed pilot is authorized claim-status access.
-The [claim-status contract](spec/claims/claim-status.md) defines operation `rcm.claims.status.get`, business version `1.0-draft.1`.
+The [claim-status contract](spec/claims/claim-status.md) defines operation `rcm.claims.status.get`, business version `1.0-draft.2`.
 
 1. The client discovers the payer's accepted issuers and credential acquisition requirements.
 2. The client selects direct payer issuance or an intermediary path permitted by that payer.

@@ -9,12 +9,12 @@ The caller selects the question groups it needs. The payer returns structured an
 This contract defines a proposed business operation and an A2A 1.0 mapping.
 The [HAP-1 access profile](../identity/hap-1-http.md) supplies authentication, verified provider delegation, and record-access rules.
 
-## V1 draft 1
+## V1 draft 2
 
 | Setting | Value |
 | --- | --- |
 | Operation | `rcm.claims.status.get` |
-| Business version | `1.0-draft.1`, matched exactly |
+| Business version | `1.0-draft.2`, matched exactly |
 | Required scope | `claim.status.read` |
 | Initial record boundary | The requested claim belongs to the authorized billing-provider NPI |
 | Lookup unit | One claim submission; its service lines can have different outcomes |
@@ -22,9 +22,9 @@ The [HAP-1 access profile](../identity/hap-1-http.md) supplies authentication, v
 | Identity version | HAP-1 `1.0-draft.4`; this operation has its own version |
 | Schema dialect | JSON Schema Draft 2020-12 |
 
-The versioned [request schema](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.1/request.schema.json),
-[response schema](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.1/response.schema.json), and
-[shared definitions](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.1/claim-status.schema.json) define the machine-readable structure.
+The versioned [request schema](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.2/request.schema.json),
+[response schema](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.2/response.schema.json), and
+[shared definitions](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.2/claim-status.schema.json) define the machine-readable structure.
 The rules on this page define its business meaning.
 These are HAP definitions, not registered A2A operations or X12 transactions.
 
@@ -46,12 +46,24 @@ All answers concern the same authorized claim, including payment allocations and
 | `review_options` | Is an appeal, reconsideration, correction, dispute, or reprocessing available? What documents and deadlines apply? | Claim-specific options, instructions, deadlines, required documents, and submission routes |
 | `remittance` | Is the EOB or remittance available? Was a requested copy sent? | Document references, availability, and existing delivery state |
 | `coordination_of_benefits` | Was the claim forwarded? Is another payer or delegated organization responsible? | Forwarding state, destination, date, coordination status, and instructions |
+| `adjudication_context` | Which plan, coverage dates, network determination, authorization, or referral did the payer use for this claim? | Claim-bound plan and coverage context, provider participation, and separate authorization and referral records |
+| `reviews` | Was an appeal, reconsideration, or dispute already received? What is its status, reference, level, or decision? | Existing review cases, state, decision, references, dates, and evidence |
 | `reprocessing` | Was reprocessing already requested? What is its reference, state, or expected completion date? | Existing reprocessing state, references, dates, and reason |
 | `follow_up` | What is the interaction or case reference? Who owns the next step? When should we check again? | References, representative or department, owner, next step, follow-up date, and processing window |
 
 Reading these details does not submit a claim, start reprocessing, file an appeal, or request document delivery.
 Those changes need separate operation contracts, permissions, and idempotency rules.
 This draft advertises no write operation.
+
+Draft 2 adds `adjudication_context`, existing `reviews`, and original-versus-corrected submission references.
+It also distinguishes a claims administrator from an actual claim-forwarding event.
+
+## V1 draft 1
+
+The [draft 1 schemas](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/tree/main/schemas/claims/1.0-draft.1) and
+[examples](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/tree/main/examples/claims/1.0-draft.1) remain unchanged.
+They do not accept draft 2's new sections or fields.
+Clients select the exact advertised business version rather than sending new fields under the earlier version.
 
 ## Request and matching
 
@@ -105,7 +117,7 @@ The following request asks what is pending and what to do next.
 ```json
 {
   "operation": "rcm.claims.status.get",
-  "operation_version": "1.0-draft.1",
+  "operation_version": "1.0-draft.2",
   "request_id": "example-lookup-001",
   "payer_id": "payer-example",
   "billing_provider_npi": "0000000000",
@@ -208,6 +220,35 @@ Review deadlines and processing windows report the payer's stated dates, units, 
 The service does not calculate an appeal deadline from an unrelated date.
 Interaction, case, payment, and claim references retain separate fields.
 
+`submission.claim_submission_type` distinguishes an original submission, correction, replacement, or void.
+`original_payer_claim_number` and `corrected_payer_claim_number` retain explicitly reported relationships without merging their statuses or amounts.
+`claim.payer_claim_reference` is distinct from the payer claim number, interaction reference, and payment reference.
+The payer verifies access before returning related claim references.
+Payer-level guidance after `not_found` never contains those claim-specific references.
+
+## Adjudication context and existing reviews
+
+`adjudication_context` reports facts recorded for the target claim's service period, with `basis: claim_record`.
+Its service period must match the returned claim identity.
+It can include plan type, product type, membership or coverage facts, provider network determinations, and coverage dates used during adjudication.
+The billing-provider identity remains bound to the authorized claim.
+
+Authorization and referral records remain separate entries with their own type, reference, requirement, on-file state, and determination for the claim.
+A missing referral does not become a missing authorization.
+Unknown requirements and on-file states are omitted or reported as gaps, rather than becoming `false`.
+Claim existence alone does not establish member eligibility, network participation, or authorization validity.
+
+This section does not perform a new eligibility, benefit, provider-participation, or prior-authorization lookup.
+Those operations need their own contracts and access policy.
+If the source cannot supply claim-bound context, the response reports that limitation instead of asserting current coverage.
+
+`reviews` reports existing appeal, reconsideration, or dispute cases linked to the authorized claim.
+Each case retains its type, review reference, level, processing state, decision, event dates, and source evidence.
+A review can remain in progress while the underlying claim still reports its previous denial.
+The service does not replace the claim's disposition with the review's state or assume that an expected date is a decision date.
+`review_options` continues to describe available next steps; `reviews` describes work already on file.
+Reading either section does not start a review or submit additional documents.
+
 ## Response example
 
 The lookup below completed successfully. The claim remains pending while the provider supplies the requested itemized bill.
@@ -216,7 +257,7 @@ The payer's due date and follow-up date are business facts, distinct from when t
 ```json
 {
   "operation": "rcm.claims.status.get",
-  "operation_version": "1.0-draft.1",
+  "operation_version": "1.0-draft.2",
   "request_id": "example-lookup-001",
   "response_id": "example-snapshot-001",
   "payer_id": "payer-example",
@@ -307,9 +348,9 @@ The payer's due date and follow-up date are business facts, distinct from when t
 ```
 
 Other complete example pairs cover
-[paid bulk payments](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/tree/main/examples/claims/1.0-draft.1),
+[paid bulk payments](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/tree/main/examples/claims/1.0-draft.2),
 denials, zero-dollar deductible outcomes, mixed lines, partial payment details, confirmed misses, ambiguous matches, additional inputs, and outages.
-The example directory contains eleven request/response pairs and A2A envelopes.
+The example directory contains fifteen request/response pairs and A2A envelopes.
 
 ## A2A discovery and messages
 
@@ -319,13 +360,13 @@ It uses the existing A2A task and artifact model; it adds no new RPC method or t
 The proposed extension identifier is:
 
 ```text
-https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/spec/claims/claim-status.md#v1-draft-1
+https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/spec/claims/claim-status.md#v1-draft-2
 ```
 
 An Agent Card advertises the extension through `capabilities.extensions` and the operation through `skills`.
 The extension parameters name the operation version, request schema, response schema, supported sections, and initial record rule.
 The card also declares the selected transport, security scheme, and required `claim.status.read` scope.
-The [example Agent Card](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.1/a2a.agent-card.json) contains those declarations.
+The [example Agent Card](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.2/a2a.agent-card.json) contains those declarations.
 This is an application profile under [A2A extension rules](https://a2a-protocol.org/latest/topics/extensions/), not a claim of A2A registration.
 
 The client activates that exact extension through `A2A-Extensions` and sends `A2A-Version: 1.0`.
@@ -339,7 +380,7 @@ Host: payer.example
 Authorization: DPoP <accepted-issuer-signed-access-vdc>
 DPoP: <proof-for-this-request-and-token>
 A2A-Version: 1.0
-A2A-Extensions: https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/spec/claims/claim-status.md#v1-draft-1
+A2A-Extensions: https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/spec/claims/claim-status.md#v1-draft-2
 Content-Type: application/json
 ```
 
@@ -354,7 +395,7 @@ Terminal lookup results appear in `task.artifacts[].parts[].data` under a stable
 The artifact declares `mediaType: application/json` and the HAP extension URI.
 An interrupted task carries the structured input request in `status.message.parts[].data`.
 The server message identifies its task and context and uses `ROLE_AGENT`.
-The [input-required task](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.1/a2a.input-required.json) shows an ambiguous match without candidate disclosure.
+The [input-required task](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.2/a2a.input-required.json) shows an ambiguous match without candidate disclosure.
 
 | Layer or outcome | Representation |
 | --- | --- |
@@ -367,8 +408,8 @@ The [input-required task](https://raw.githubusercontent.com/Healthcare-Agent-Pro
 | Source failure giving `unavailable` | `TASK_STATE_FAILED` with a safe result describing the failure |
 | Claim pending, denied, or awaiting payment | The lookup task can still be `TASK_STATE_COMPLETED`; claim business state stays in the result |
 
-The [request envelope](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.1/a2a.send-message.json) and
-[completed task](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.1/a2a.completed-task.json) contain complete invented examples.
+The [request envelope](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.2/a2a.send-message.json) and
+[completed task](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.2/a2a.completed-task.json) contain complete invented examples.
 A client supplies additional inputs through a new `SendMessage` on the same task and context, with a new business `request_id`.
 Invalid credentials do not become a business `input_required` request or a claim denial.
 

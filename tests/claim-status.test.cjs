@@ -7,14 +7,16 @@ const Ajv2020 = require('ajv/dist/2020').default;
 const addFormats = require('ajv-formats');
 
 const root = join(__dirname, '..');
-const version = '1.0-draft.1';
+const version = '1.0-draft.2';
 const schemaDir = join(root, 'schemas/claims', version);
 const exampleDir = join(root, 'examples/claims', version);
 const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'));
 const ajv = new Ajv2020({ allErrors: true, strict: true, strictRequired: false });
 addFormats(ajv);
-for (const name of ['claim-status', 'request', 'response']) {
-  ajv.addSchema(readJson(join(schemaDir, `${name}.schema.json`)));
+for (const supported of ['1.0-draft.1', version]) {
+  for (const name of ['claim-status', 'request', 'response']) {
+    ajv.addSchema(readJson(join(root, 'schemas/claims', supported, `${name}.schema.json`)));
+  }
 }
 const requestValidator = ajv.getSchema(readJson(join(schemaDir, 'request.schema.json')).$id);
 const responseValidator = ajv.getSchema(readJson(join(schemaDir, 'response.schema.json')).$id);
@@ -88,6 +90,19 @@ function semanticErrors(request, response) {
   checkPeriod(claim.service_period);
   if (claim.billing_provider_npi !== request.billing_provider_npi) errors.push('wrong billing provider');
   checkEvidence(claim.evidence_ids);
+  const context = response.sections.adjudication_context?.data;
+  if (context) {
+    checkPeriod(context.as_of_service_period);
+    if (!claim.service_period || !isDeepStrictEqual(context.as_of_service_period, claim.service_period)) {
+      errors.push('context is not bound to the claim service period');
+    }
+    for (const provider of context.provider_network || []) {
+      if (provider.provider_role === 'billing' && provider.provider_npi && provider.provider_npi !== claim.billing_provider_npi) {
+        errors.push('wrong billing provider in adjudication context');
+      }
+    }
+  }
+  for (const review of response.sections.reviews?.data || []) checkEvidence(review.evidence_ids);
   const requiredMatches = ['payer_claim_number', 'member_id', 'patient', 'service_period', 'billed_amount', 'patient_account_number']
     .filter(field => request.claim[field] !== undefined);
   for (const field of requiredMatches) {
@@ -284,4 +299,74 @@ test('the operation page shows the validated pending request and response', () =
   validPair(examples[0], examples[1]);
   assert.deepEqual(examples[0], fixture('pending_information').request);
   assert.deepEqual(examples[1], fixture('pending_information').response);
+});
+
+for (const name of readdirSync(join(root, 'examples/claims/1.0-draft.1'))
+  .filter(name => name.endsWith('.request.json')).map(name => name.replace('.request.json', ''))) {
+  test(`retained draft 1 ${name} example still validates`, () => {
+    const request = readJson(join(root, 'examples/claims/1.0-draft.1', `${name}.request.json`));
+    const response = readJson(join(root, 'examples/claims/1.0-draft.1', `${name}.response.json`));
+    const schemaBase = 'https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.1/';
+    assert.equal(ajv.getSchema(schemaBase + 'request.schema.json')(request), true);
+    assert.equal(ajv.getSchema(schemaBase + 'response.schema.json')(response), true);
+    assert.deepEqual(semanticErrors(request, response), []);
+  });
+}
+
+test('draft 1 rejects the new draft 2 sections', () => {
+  const request = fixture('claim_adjudication_context').request;
+  request.operation_version = '1.0-draft.1';
+  const base = 'https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.1/';
+  assert.equal(ajv.getSchema(base + 'request.schema.json')(request), false);
+});
+
+test('adjudication context cannot represent a fresh eligibility inquiry', () => {
+  const pair = fixture('claim_adjudication_context');
+  pair.response.sections.adjudication_context.data.basis = 'current_eligibility';
+  assert.equal(responseValidator(pair.response), false);
+});
+
+test('adjudication context must identify the same service period and billing provider', () => {
+  for (const mutate of [
+    data => { data.as_of_service_period.start = '2026-11-01'; data.as_of_service_period.end = '2026-11-01'; },
+    data => { data.provider_network[0].provider_npi = '1111111111'; },
+  ]) {
+    const pair = fixture('claim_adjudication_context');
+    mutate(pair.response.sections.adjudication_context.data);
+    assert.equal(responseValidator(pair.response), true);
+    assert.notDeepEqual(semanticErrors(pair.request, pair.response), []);
+  }
+});
+
+test('existing review status does not replace the claim adjudication status', () => {
+  const pair = fixture('existing_review');
+  validPair(pair.request, pair.response);
+  assert.equal(pair.response.sections.reviews.data[0].status, 'in_review');
+  assert.equal(pair.response.sections.status.data.disposition, 'denied');
+});
+
+test('existing reviews require their own evidence', () => {
+  const pair = fixture('existing_review');
+  pair.response.sections.reviews.data[0].evidence_ids = ['example-missing'];
+  assert.notDeepEqual(semanticErrors(pair.request, pair.response), []);
+});
+
+test('an in-progress review cannot report a terminal decision or decision date', () => {
+  for (const fields of [{ decision: 'overturned' }, { decision_date: '2026-11-20' }]) {
+    const pair = fixture('existing_review');
+    Object.assign(pair.response.sections.reviews.data[0], fields);
+    assert.equal(responseValidator(pair.response), false);
+  }
+});
+
+test('a delegated administrator does not imply the claim was forwarded', () => {
+  const pair = fixture('delegated_administrator');
+  validPair(pair.request, pair.response);
+  assert.equal(Object.hasOwn(pair.response.sections.coordination_of_benefits.data, 'forwarded'), false);
+});
+
+test('a lookup miss cannot return original or corrected claim references', () => {
+  const pair = fixture('not_found_submission_guidance');
+  pair.response.payer_guidance.submission.data.original_payer_claim_number = 'EXAMPLE-ORIGINAL-CLAIM-001';
+  assert.equal(responseValidator(pair.response), false);
 });

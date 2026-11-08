@@ -26,9 +26,9 @@ Discovery must show that subset and its applicable limits.
 ## First operation
 
 [`rcm.claims.status.get`](../spec/claims/claim-status.md) reads one authorized claim under the HAP-1 scope `claim.status.read`.
-Its business version is `1.0-draft.1`, separate from the identity protocol version.
+Its business version is `1.0-draft.2`, separate from the identity protocol version.
 
-The caller selects status and supporting question groups: amounts, payments, denials, pending requirements, service lines, submission, review options, remittance, coordination, reprocessing, and follow-up.
+The caller selects status and supporting groups: amounts, payments, denials, pending requirements, service lines, submission, reviews, remittance, coordination, adjudication context, reprocessing, and follow-up.
 The response separates lookup outcome, authorization, claim business state, missing facts, source evidence, and observation time.
 It preserves line-level outcomes and distinguishes payment issuance, settlement, bulk totals, and this claim's allocation.
 
