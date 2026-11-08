@@ -3,32 +3,72 @@ title: "Pilot roadmap"
 description: "The work required for an interoperable claim-status pilot."
 ---
 
-The first milestone connects one client, one trusted intermediary, and one payer for claim-status reading.
+The first milestone connects one client and one payer for claim-status reading, with an intermediary when payer policy selects that path.
 The repository currently contains design documents only.
 
-1. Review HAP-1 draft 2 with the pilot participants.
-2. Agree on issuer trust, accepted provider delegation evidence, and the payer's delegated grant policy.
-3. Publish schemas for intermediary-issued grants and provider constraints.
+1. Review HAP-1 draft 4, including the pre-call authentication proposal, with the pilot participants.
+2. Agree on payer-selected issuance paths, issuer trust, accepted provider delegation evidence, and grant policy.
+3. Publish schemas for payer-issued and intermediary-issued VDCs and provider constraints.
 4. Define the claim-status operation and its request and result schemas.
-5. Define capability discovery, supported versions, and extension negotiation.
-6. Specify how intermediary-issued credentials accompany HTTP and A2A business requests.
-7. Implement a reference client, intermediary, payer verifier, and payer service with invented data.
-8. Implement conformance checks for identity, authorization, record limits, replay, expiry, revocation, and retries.
-9. Validate interoperability between independent implementations.
-10. Review pilot results before publishing a production version.
+5. Define payer-card discovery, destination policies, supported versions, and extension negotiation.
+6. Specify how either accepted VDC accompanies HTTP and A2A business requests.
+7. Agree on call-registration schemas, client authentication, correlation assurance, and both payer verification paths for a voice pilot.
+8. Implement a reference client, payer issuer, optional intermediary issuer, call verifier, and payer service with invented data.
+9. Check issuance, call binding, payer policy, record limits, replay, expiry, revocation, retries, and media boundaries.
+10. Validate interoperability between independent implementations.
+11. Review pilot results before publishing a production version.
 
 ## Open decisions
 
+VDCs are required. Trusted intermediaries are optional at the protocol level, and each payer selects its accepted issuance paths.
+Those decisions are settled; the remaining work defines their interoperable representation.
+
 | Area | Decision required |
 | --- | --- |
-| Delegated authority | Evidence the intermediary accepts for provider, RCM organization, and automation client relationships |
+| Delegated authority | Evidence each accepted issuer validates for provider, RCM organization, and automation client relationships |
 | Trust policy | Issuer grant authority, provider constraints, allowed operations, and local payer blocks |
-| Discovery | Profile format, endpoint discovery, operation identifiers, and version selection |
+| Access discovery | Serialization for payer issuer policy, credential endpoints, evidence requirements, cache validity, and version selection |
+| Voice discovery | JSON Agent Card extension schema, authenticated payer/domain mapping, destination coverage, endpoint precedence, and cache validity |
+| Call registration | CreateCallRef schema, authentication profile, token entropy, expiry, idempotency, rate limits, and negotiation errors |
+| Call verification | Payer lookup and integrated result schemas, actual-call binding, token consumption, result authentication, and media controls |
+| Telephony extensions | Per-number ENUM/NAPTR discovery, RN/JIP and watermark encoding, and carrier-supported STIR/SHAKEN association |
 | Claim matching | Required identifiers, ambiguous matches, and safe missing-record responses |
 | Evidence | Source, observation time, applicable dates, and payer-confirmed versus derived results |
 | Transport | Exact HTTP and A2A mappings, including credential presentation and error behavior |
-| Lifecycle | Intermediary grant expiry, revocation freshness and outages, durable business references, and long-running work |
+| Lifecycle | VDC expiry for either issuer, revocation freshness and outages, durable business references, and long-running work |
 | Conformance | Versioned test cases and independent implementation requirements |
 | Governance | Maintainer roles, change review, release authority, and extension ownership |
 
 Broader RCM capabilities follow after the first operation has stable contracts and tested implementations.
+
+## Pre-call authentication pilot
+
+The [voice proposal](../spec/identity/hap-1-voice.md) uses one agent-facing registration exchange before dialing.
+OAuth credential acquisition remains separate when needed. The payer selects its verifier through authenticated discovery.
+The payer can look up a call reference or get an authenticated result through the selected verifier's integration.
+
+The pilot needs an agreed JSON card schema and exact destination rules before implementations can discover endpoints consistently.
+It also needs a tested binding between the authenticated registration and the actual incoming call.
+A detected token alone does not complete that assurance or authorize protected work.
+The voice mapping for VDC presentation and continued credential control remains open.
+
+NAPTR discovery, RN/JIP, audio watermarks, and STIR/SHAKEN correlation remain separate extension proposals.
+The pilot does not assume carrier support or unrestricted access to protected call audio.
+
+## Optional privacy profile after v0
+
+V0 includes an optional payload encryption pattern and participant diagram.
+The first core implementation does not require payload encryption.
+Transport security, signed access grants, provider delegation checks, and payer authorization remain required.
+
+A later encryption profile needs:
+
+- An envelope format, such as JWE, and supported algorithms.
+- Authenticated payer key discovery, key selection, rotation, and retirement rules.
+- Capability negotiation and explicit behavior when encryption is required but unavailable.
+- Binding between the payload, signed delegation, bot key, payer, action, expiry, and replay controls.
+- Rules for response encryption, visible metadata, safe errors, and permitted result fields.
+- Schemas, test vectors, and interoperability checks with invented data.
+
+Choosing JWE alone does not complete this profile.
+If a pilot requires the bot to remain unable to read lookup identifiers, that pilot needs the agreed profile before implementation.

@@ -32,7 +32,8 @@
         "group": "Identity and access",
         "pages": [
           "spec/identity/hap-1",
-          "spec/identity/hap-1-http"
+          "spec/identity/hap-1-http",
+          "spec/identity/hap-1-voice"
         ]
       },
       {

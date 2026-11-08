@@ -11,10 +11,41 @@ This repository contains early protocol drafts. It has no production release or 
 Use invented data in examples, tests, issues, and pull requests.
 Never submit patient data, claim records from production, credentials, tokens, private keys, recordings, or transcripts.
 
-HAP-1 delegates client authentication and access decisions to trusted intermediaries under payer-approved policies.
-The payer validates signed grants and enforces their operation and record limits.
-The intermediary handles provider delegation evidence and access metadata, without patient data, claim payloads, or protected call content.
+HAP-1 requires a verifiable digital credential (VDC) for delegated RCM operations.
+Trusted intermediaries are optional at the protocol level. Each payer publishes the issuers and issuance paths it accepts.
+The selected issuer verifies identity and provider delegation before issuing a VDC.
+An authentication payload or knowledge of patient details alone does not establish provider-to-bot authority.
+The payer validates VDCs and enforces their operation and record limits in both paths.
+When used, an intermediary handles provider delegation evidence and access metadata, without patient data, claim payloads, or protected call content.
+Direct payer verification sends accepted evidence to the payer without an intermediary hop.
 See the [HAP-1 draft](/spec/identity/hap-1) for the proposed boundaries.
+
+## Call registration and verification
+
+The [voice proposal](/spec/identity/hap-1-voice) authenticates agent registration before dialing.
+Payer-controlled discovery selects the verifier, covered destinations, accepted credentials, and correlation methods.
+An allowlisted URL or self-published key alone does not establish client identity or payer approval.
+
+A call reference is not an access VDC. A positive call result does not establish provider delegation or authorize record access.
+The result must bind the authenticated client and registration to the actual payer-side call.
+Expired references, replayed tokens, ambiguous observations, or unverifiable results leave the call unverified.
+
+An external audio feed contains only the approved identity exchange and excludes protected conversation content.
+Registration requests and verification events contain no patient or claim data.
+An unrestricted fork of the conversation is outside this proposal's data boundary.
+
+## Optional payload encryption
+
+End-to-end payload encryption is an optional implementation choice.
+It can keep lookup identifiers unreadable to an RCM bot that forwards requests to the payer.
+It does not replace HTTPS, access credentials, verified delegation, or payer authorization.
+
+The intended privacy benefit is reduced plaintext PHI exposure.
+An encrypted lookup payload does not establish that responses, metadata, errors, or receipts contain no PHI.
+Implementations must limit those fields to the information their participants need.
+
+The [HAP-1 privacy pattern](/spec/identity/hap-1#optional-payload-encryption) includes the participant diagram.
+The detailed encryption profile remains [future work](/docs/roadmap#optional-privacy-profile-after-v0).
 
 ## Vulnerability reports
 

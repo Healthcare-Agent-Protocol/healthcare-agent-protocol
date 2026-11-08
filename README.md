@@ -5,7 +5,7 @@ Healthcare Agent Protocol (HAP) is a draft protocol for agents that work with pa
 HAP aims to define shared business operations, structured inputs and results, capability discovery, and access controls.
 The same business contracts should support direct payer connections and connections through RCM organizations.
 
-**Status: early design draft.** This repository contains design documents and a proposed authentication binding.
+**Status: early design draft.** This repository contains design documents and proposed authentication profiles.
 It does not yet contain a complete protocol, executable reference implementation, or conformance suite.
 
 ## Start here
@@ -15,7 +15,8 @@ It does not yet contain a complete protocol, executable reference implementation
 | [Architecture](docs/architecture.md) | Protocol layers and authority boundaries |
 | [Business capabilities](docs/capabilities.md) | Nine proposed business functions |
 | [HAP-1 identity and access](spec/identity/hap-1.md) | Plain-language walkthrough of the partner-review draft |
-| [HAP-1 HTTP reference](spec/identity/hap-1-http.md) | Intermediary-issued grants for version `1.0-draft.2` |
+| [HAP-1 HTTP reference](spec/identity/hap-1-http.md) | Payer-led discovery and both VDC issuance paths for version `1.0-draft.4` |
+| [HAP-1 pre-call authentication](spec/identity/hap-1-voice.md) | Agent-initiated registration, payer-card discovery, and phone-call verification |
 | [Roadmap](docs/roadmap.md) | Work required for the first complete pilot |
 | [Contributing](CONTRIBUTING.md) | How to propose changes |
 | [Security](SECURITY.md) | Data handling and vulnerability reporting |
@@ -24,15 +25,31 @@ It does not yet contain a complete protocol, executable reference implementation
 
 The first proposed pilot is authorized claim-status access.
 
-1. The payer approves an intermediary and its access-grant policy.
-2. The intermediary verifies the client and its provider delegation.
-3. The intermediary authenticates the client and issues a scoped access token.
-4. The client requests claim status directly from the payer using that token.
-5. The payer's verifier checks token validity, operation scope, record limits, and local blocks.
+1. The client discovers the payer's accepted issuers and credential acquisition requirements.
+2. The client selects direct payer issuance or an intermediary path permitted by that payer.
+3. The selected issuer verifies identity and provider delegation, then issues a scoped verifiable digital credential (VDC).
+4. The client requests claim status from the payer using the VDC and key proof.
+5. The payer's verifier checks credential validity, operation scope, record limits, and local blocks.
 6. The payer returns the authorized result with its source and observation time.
 
-The payer does not require separate client enrollment, login, verification questions, or payer-issued access tokens.
-The intermediary handles identity, provider delegation, and access grants. Claim data passes directly between client and payer.
+**VDCs are required; trusted intermediaries are optional at the protocol level.**
+Each payer can require a designated intermediary, issue VDCs directly, or accept both paths.
+An intermediary issues the VDC for its path; the payer accepts it without minting a replacement.
+In the direct path, the payer validates accepted authentication and delegation evidence before issuing the VDC itself.
+Claim data passes directly between client and payer. Payload encryption is an optional privacy pattern.
+
+## Pre-call authentication
+
+For phone calls, the agent discovers the payer-selected registration endpoint from a payer-published JSON card or authenticated configuration.
+It authenticates to that service, registers the call, and gets a token plus correlation instructions before dialing.
+The agent carries the correlation into the call through a negotiated method such as DTMF or spoken digits.
+The payer checks it through a verification interface or gets a result from its existing verifier integration.
+The endpoint can belong to the payer, Pindrop, or another approved service; HAP requires no universal registrar.
+These are proposed roles, not claims of vendor support.
+
+The call reference establishes call correlation, not permission to access patient or claim data.
+The required VDC and payer authorization checks still apply before protected work.
+Per-number NAPTR, RN/JIP, watermark, and STIR/SHAKEN correlation remain proposed extensions requiring agreed profiles.
 
 ## Inspiration and existing standards
 

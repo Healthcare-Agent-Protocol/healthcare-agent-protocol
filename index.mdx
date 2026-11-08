@@ -12,8 +12,9 @@ Healthcare Agent Protocol (HAP) defines a proposed way for healthcare agents to 
 ## Start with a business operation
 
 A provider or RCM agent should be able to request claim status using a shared contract.
-A trusted intermediary verifies the agent and its provider delegation, then grants access under the payer's approved policy.
-The payer validates that grant and enforces its record limits.
+The agent first discovers the payer's credential requirements.
+The payer or an approved intermediary verifies identity and provider delegation, then issues a verifiable digital credential (VDC).
+The payer validates that VDC and enforces its record limits.
 The result should state the claim status, its source, and when the payer observed it.
 
 The first proposed pilot supports claim-status reading under the scope `claim.status.read`.
@@ -26,19 +27,34 @@ The first proposed pilot supports claim-status reading under the scope `claim.st
     Review nine proposed functions for revenue cycle workflows.
   </Card>
   <Card title="Read HAP-1" icon="shield-halved" href="/spec/identity/hap-1">
-    Review the identity and access proposal, including its HTTP binding.
+    Review identity, pre-call authentication, and delegated access.
   </Card>
   <Card title="Review the pilot roadmap" icon="route" href="/docs/roadmap">
     See the decisions and implementation work required for the first pilot.
   </Card>
 </CardGroup>
 
+## Authenticate before a phone call
+
+The agent reads a payer-published JSON card or authenticated configuration to discover where to register.
+It makes an authenticated API request before dialing and gets a call reference plus correlation instructions.
+The payer can host that service or select Pindrop or another verifier; these are proposed roles, not claims of vendor support.
+The agent carries the correlation through a negotiated method such as DTMF or spoken digits.
+The payer verifies it through a lookup or gets an authenticated result through its verifier integration.
+
+A positive call result establishes identity and call correlation. Protected access still needs the accepted VDC and payer authorization.
+Read the [pre-call authentication proposal](/spec/identity/hap-1-voice) for discovery, registration, and both verification paths.
+
 ## Keep clear boundaries
 
-- The intermediary handles client authentication, provider delegation checks, and access grants.
-- The payer approves issuer policies and enforces signed grants through a standard verifier.
-- The payer does not require a separate client login or verification questionnaire.
+- A payer-accepted VDC is required for every protected delegated RCM operation.
+- Trusted intermediaries are optional at the protocol level. Each payer can require one, issue VDCs directly, or accept both paths.
+- Payer-led discovery tells the client which issuers and acquisition methods are accepted.
+- Voice discovery selects the registration service and call-correlation methods; a call reference does not replace an access VDC.
+- An approved intermediary issues its VDC directly; the payer does not issue a replacement for that path.
+- The payer enforces VDC scope, key binding, record permissions, and local access policy in both paths.
 - Claim data passes directly between client and payer.
+- Payload encryption is an optional privacy pattern. Transport security and verified delegation remain required.
 - A completed lookup can report a claim that remains pending.
 
 ## Build on existing standards
