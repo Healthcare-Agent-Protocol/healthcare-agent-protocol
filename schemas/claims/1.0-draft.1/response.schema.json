@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.1/response.schema.json",
+  "title": "HAP claim-status response",
+  "$ref": "https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.1/claim-status.schema.json#/$defs/Response"
+}

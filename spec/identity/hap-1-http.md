@@ -202,7 +202,8 @@ DPoP: <proof-for-this-request-and-token>
 Content-Type: application/json
 ```
 
-This endpoint illustrates credential presentation only. The business profile will define the claim-status path and body.
+This endpoint illustrates credential presentation only; it is not a defined direct HTTP business endpoint.
+The [claim-status contract](../claims/claim-status.md) defines the initial business request, response, and A2A 1.0 mapping.
 The payer verifies the presented VDC without exchanging it for another token or starting another issuance flow.
 
 The payer's verifier checks:

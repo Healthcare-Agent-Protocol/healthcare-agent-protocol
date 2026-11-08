@@ -1,0 +1,51 @@
+{
+  "jsonrpc": "2.0",
+  "id": "example-rpc-1",
+  "method": "SendMessage",
+  "params": {
+    "message": {
+      "messageId": "example-message-1",
+      "role": "ROLE_USER",
+      "extensions": [
+        "https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/spec/claims/claim-status.md#v1-draft-1"
+      ],
+      "parts": [
+        {
+          "mediaType": "application/json",
+          "data": {
+            "operation": "rcm.claims.status.get",
+            "operation_version": "1.0-draft.1",
+            "request_id": "example-lookup-001",
+            "payer_id": "payer-example",
+            "billing_provider_npi": "0000000000",
+            "claim": {
+              "lookup_method": "payer_claim_number",
+              "payer_claim_number": "EXAMPLE-CLAIM-001",
+              "service_period": {
+                "start": "2026-10-01",
+                "end": "2026-10-01"
+              },
+              "billed_amount": {
+                "amount": "150.00",
+                "currency": "USD"
+              }
+            },
+            "requested_sections": [
+              "status",
+              "amounts",
+              "payments",
+              "remittance",
+              "follow_up"
+            ]
+          }
+        }
+      ]
+    },
+    "configuration": {
+      "acceptedOutputModes": [
+        "application/json"
+      ],
+      "returnImmediately": false
+    }
+  }
+}

@@ -4,14 +4,15 @@ description: "The work required for an interoperable claim-status pilot."
 ---
 
 The first milestone connects one client and one payer for claim-status reading, with an intermediary when payer policy selects that path.
-The repository currently contains design documents only.
+The repository contains design documents, claim-status schemas, invented examples, and contract checks.
+It does not yet implement a payer service or an executable client.
 
 1. Review HAP-1 draft 4, including the pre-call authentication proposal, with the pilot participants.
 2. Agree on payer-selected issuance paths, issuer trust, accepted provider delegation evidence, and grant policy.
 3. Publish schemas for payer-issued and intermediary-issued VDCs and provider constraints.
-4. Define the claim-status operation and its request and result schemas.
+4. Review the claim-status `1.0-draft.1` contract and validate its request and response schemas with pilot participants.
 5. Define payer-card discovery, destination policies, supported versions, and extension negotiation.
-6. Specify how either accepted VDC accompanies HTTP and A2A business requests.
+6. Test the claim-status A2A 1.0 mapping and its VDC presentation between independent implementations.
 7. Agree on call-registration schemas, client authentication, correlation assurance, and both payer verification paths for a voice pilot.
 8. Implement a reference client, payer issuer, optional intermediary issuer, call verifier, and payer service with invented data.
 9. Check issuance, call binding, payer policy, record limits, replay, expiry, revocation, retries, and media boundaries.
@@ -32,14 +33,21 @@ Those decisions are settled; the remaining work defines their interoperable repr
 | Call registration | CreateCallRef schema, authentication profile, token entropy, expiry, idempotency, rate limits, and negotiation errors |
 | Call verification | Payer lookup and integrated result schemas, actual-call binding, token consumption, result authentication, and media controls |
 | Telephony extensions | Per-number ENUM/NAPTR discovery, RN/JIP and watermark encoding, and carrier-supported STIR/SHAKEN association |
-| Claim matching | Required identifiers, ambiguous matches, and safe missing-record responses |
-| Evidence | Source, observation time, applicable dates, and payer-confirmed versus derived results |
-| Transport | Exact HTTP and A2A mappings, including credential presentation and error behavior |
+| Claim matching | Payer-specific additional identifiers, source matching behavior, and independent checks of the defined ambiguity rules |
+| Evidence | Source adapters, freshness guarantees, and independent checks of payer-confirmed versus derived facts |
+| Transport | Implement the claim-status A2A mapping; define direct HTTP business bindings and mappings for other operations |
 | Lifecycle | VDC expiry for either issuer, revocation freshness and outages, durable business references, and long-running work |
 | Conformance | Versioned test cases and independent implementation requirements |
 | Governance | Maintainer roles, change review, release authority, and extension ownership |
 
 Broader RCM capabilities follow after the first operation has stable contracts and tested implementations.
+
+## Claim-status contract
+
+The [claim-status operation](../spec/claims/claim-status.md) defines business version `1.0-draft.1` and JSON Schema Draft 2020-12 files.
+It includes eleven invented request/response pairs and A2A envelopes.
+The automated checks cover schema validation and cross-field failures; they do not verify a deployed payer's access enforcement.
+The pilot still needs source adapters, trusted issuer setup, a client, a payer service, and independent interoperability checks.
 
 ## Pre-call authentication pilot
 

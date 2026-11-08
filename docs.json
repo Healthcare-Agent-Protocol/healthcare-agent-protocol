@@ -28,6 +28,12 @@
         ]
       },
       {
+        "group": "Business operations",
+        "pages": [
+          "spec/claims/claim-status"
+        ]
+      },
+      {
         "group": "Identity and access",
         "pages": [
           "spec/identity/hap-1",

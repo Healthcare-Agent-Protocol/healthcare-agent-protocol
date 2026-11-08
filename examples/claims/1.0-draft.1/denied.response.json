@@ -1,0 +1,104 @@
+{
+  "operation": "rcm.claims.status.get",
+  "operation_version": "1.0-draft.1",
+  "request_id": "example-lookup-001",
+  "response_id": "example-snapshot-001",
+  "payer_id": "payer-example",
+  "authorization": "granted",
+  "outcome": "matched",
+  "observed_at": "2026-11-08T18:00:00Z",
+  "evidence": [
+    {
+      "evidence_id": "example-observation-1",
+      "source_type": "payer_api",
+      "source_organization_id": "payer-example",
+      "authority": "payer_confirmed",
+      "observed_at": "2026-11-08T18:00:00Z",
+      "source_reference": "example-payer-observation-1"
+    }
+  ],
+  "claim": {
+    "record_reference": "example-payer-record-1",
+    "payer_claim_number": "EXAMPLE-CLAIM-001",
+    "billing_provider_npi": "0000000000",
+    "service_period": {
+      "start": "2026-10-01",
+      "end": "2026-10-01"
+    },
+    "billed_amount": {
+      "amount": "150.00",
+      "currency": "USD"
+    },
+    "matched_on": [
+      "payer_claim_number",
+      "service_period",
+      "billed_amount"
+    ],
+    "evidence_ids": [
+      "example-observation-1"
+    ]
+  },
+  "sections": {
+    "status": {
+      "availability": "available",
+      "data": {
+        "phase": "adjudicated",
+        "disposition": "denied",
+        "denied_date": "2026-10-10"
+      },
+      "evidence_ids": [
+        "example-observation-1"
+      ]
+    },
+    "denials": {
+      "availability": "available",
+      "data": [
+        {
+          "category": "missing_information",
+          "reason": "The payer requires an itemized bill.",
+          "codes": [
+            {
+              "system": "payer",
+              "code": "EXAMPLE-D01"
+            }
+          ],
+          "denied_date": "2026-10-10"
+        }
+      ],
+      "evidence_ids": [
+        "example-observation-1"
+      ]
+    },
+    "review_options": {
+      "availability": "available",
+      "data": [
+        {
+          "type": "reconsideration",
+          "deadline": "2027-01-08",
+          "instructions": "Send the itemized bill through the payer portal.",
+          "required_documents": [
+            "itemized_bill"
+          ],
+          "submission_routes": [
+            {
+              "channel": "portal",
+              "url": "https://payer.example/reconsiderations"
+            }
+          ]
+        }
+      ],
+      "evidence_ids": [
+        "example-observation-1"
+      ]
+    },
+    "reprocessing": {
+      "availability": "available",
+      "data": {
+        "status": "not_requested"
+      },
+      "evidence_ids": [
+        "example-observation-1"
+      ]
+    }
+  }
+}

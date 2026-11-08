@@ -1,5 +1,7 @@
 {
   "devDependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "2.1.1",
     "mint": "4.2.1196"
   },
   "name": "healthcare-agent-protocol-docs",
@@ -8,6 +10,7 @@
     "node": ">=24 <25"
   },
   "scripts": {
+    "contracts:check": "node --test tests/claim-status.test.cjs",
     "docs:dev": "mint dev --no-open",
     "docs:validate": "mint validate",
     "docs:links": "mint broken-links"

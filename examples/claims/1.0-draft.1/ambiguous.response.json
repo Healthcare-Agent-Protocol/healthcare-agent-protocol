@@ -1,0 +1,23 @@
+{
+  "operation": "rcm.claims.status.get",
+  "operation_version": "1.0-draft.1",
+  "request_id": "example-lookup-001",
+  "response_id": "example-snapshot-001",
+  "payer_id": "payer-example",
+  "authorization": "granted",
+  "outcome": "ambiguous",
+  "observed_at": "2026-11-08T18:00:00Z",
+  "evidence": [
+    {
+      "evidence_id": "example-observation-1",
+      "source_type": "payer_api",
+      "source_organization_id": "payer-example",
+      "authority": "payer_confirmed",
+      "observed_at": "2026-11-08T18:00:00Z",
+      "source_reference": "example-payer-observation-1"
+    }
+  ],
+  "required_inputs": [
+    "/claim/payer_claim_number"
+  ]
+}

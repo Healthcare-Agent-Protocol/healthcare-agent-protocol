@@ -1,0 +1,15 @@
+{
+  "operation": "rcm.claims.status.get",
+  "operation_version": "1.0-draft.1",
+  "request_id": "example-lookup-001",
+  "response_id": "example-snapshot-001",
+  "payer_id": "payer-example",
+  "authorization": "granted",
+  "outcome": "unavailable",
+  "observed_at": "2026-11-08T18:00:00Z",
+  "problem": {
+    "code": "payer_timeout",
+    "retryable": true,
+    "retry_after_seconds": 30
+  }
+}

@@ -208,7 +208,8 @@ The HTTP proposal uses [OAuth client credentials](https://www.rfc-editor.org/rfc
 The [HTTP reference](hap-1-http.md) defines the HAP-specific grant fields and trust rules.
 
 The [voice proposal](hap-1-voice.md) adds pre-call registration and correlation under the same payer-controlled trust model.
-Voice and A2A bindings still need their own access VDC presentation and credential-control mappings before protected operations.
+The [claim-status contract](../claims/claim-status.md) defines VDC presentation for its proposed A2A 1.0 binding.
+Voice still needs its own access VDC presentation and credential-control mapping before protected operations.
 
 [AP2's authorization framework](https://ap2-protocol.org/ap2/agent_authorization/) informs the separation of delegation, action authorization, and credential issuance.
 HAP's required VDCs, healthcare permissions, and issuance policy are this draft's contract; base A2A does not impose them.

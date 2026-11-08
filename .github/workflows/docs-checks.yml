@@ -18,5 +18,6 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - run: npm run contracts:check
       - run: npm run docs:validate
       - run: npm run docs:links

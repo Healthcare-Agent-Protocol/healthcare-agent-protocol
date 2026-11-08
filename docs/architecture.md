@@ -12,9 +12,9 @@ This document describes the proposed architecture. It does not define a wire con
 | Voice authentication | Agents register before dialing; the payer or its selected verifier correlates the incoming call | HAP-1 pre-call proposal |
 | Payer enforcement | A standard verifier checks signed grants, permitted operations, record limits, and local blocks | Proposed gateway integration |
 | Payload privacy | An originating system can encrypt lookup data for the payer while agents forward an opaque payload | Optional pattern; detailed profile deferred |
-| Business contracts | Define operation inputs, results, evidence, and business outcomes | Proposed capability catalog |
+| Business contracts | Define operation inputs, results, evidence, and business outcomes | Claim-status schemas and examples; other operations remain proposed |
 | Discovery and versions | Payers publish accepted issuers, issuance paths, access requirements, registration endpoints, destination policies, and versions | JSON card proposal; schemas and per-number DNS profile remain open |
-| Transport bindings | Map contracts to HTTP, A2A, and voice channels | HAP-1 HTTP and pre-call proposals; protected voice operations need a credential mapping |
+| Transport bindings | Map contracts to HTTP, A2A, and voice channels | Claim-status A2A 1.0 and HAP-1 HTTP proposals; protected voice operations need a credential mapping |
 | Integration adapters | Connect contracts to payer APIs, X12, FHIR, or assisted workflows | To be implemented |
 
 ## Identity and authority
@@ -77,6 +77,11 @@ Each operation needs:
 A capability groups related operations.
 An implementation must state the exact operations it supports.
 Claim-status support does not imply support for claim submission or reprocessing.
+
+The [claim-status operation](../spec/claims/claim-status.md) now defines the first draft business contract.
+It provides versioned request and response schemas, typed question groups, matching rules, evidence, partial answers, and A2A messages.
+Its business version changes independently of HAP-1 identity.
+Read-only access to payment, document, or review details remains limited to the same authorized claim.
 
 ## Tasks and business outcomes
 

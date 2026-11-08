@@ -6,7 +6,8 @@ HAP aims to define shared business operations, structured inputs and results, ca
 The same business contracts should support direct payer connections and connections through RCM organizations.
 
 **Status: early design draft.** This repository contains design documents and proposed authentication profiles.
-It does not yet contain a complete protocol, executable reference implementation, or conformance suite.
+It includes claim-status schemas, invented examples, and contract checks.
+It does not yet contain a complete protocol, executable client or payer service, or independent conformance suite.
 
 ## Start here
 
@@ -14,6 +15,7 @@ It does not yet contain a complete protocol, executable reference implementation
 | --- | --- |
 | [Architecture](docs/architecture.md) | Protocol layers and authority boundaries |
 | [Business capabilities](docs/capabilities.md) | Nine proposed business functions |
+| [Claim status](spec/claims/claim-status.md) | Request and response schemas, follow-up question groups, and A2A 1.0 messages |
 | [HAP-1 identity and access](spec/identity/hap-1.md) | Plain-language walkthrough of the partner-review draft |
 | [HAP-1 HTTP reference](spec/identity/hap-1-http.md) | Payer-led discovery and both VDC issuance paths for version `1.0-draft.4` |
 | [HAP-1 pre-call authentication](spec/identity/hap-1-voice.md) | Agent-initiated registration, payer-card discovery, and phone-call verification |
@@ -24,11 +26,12 @@ It does not yet contain a complete protocol, executable reference implementation
 ## First pilot
 
 The first proposed pilot is authorized claim-status access.
+The [claim-status contract](spec/claims/claim-status.md) defines operation `rcm.claims.status.get`, business version `1.0-draft.1`.
 
 1. The client discovers the payer's accepted issuers and credential acquisition requirements.
 2. The client selects direct payer issuance or an intermediary path permitted by that payer.
 3. The selected issuer verifies identity and provider delegation, then issues a scoped verifiable digital credential (VDC).
-4. The client requests claim status from the payer using the VDC and key proof.
+4. The client requests claim status and selected follow-up sections using the VDC and key proof.
 5. The payer's verifier checks credential validity, operation scope, record limits, and local blocks.
 6. The payer returns the authorized result with its source and observation time.
 
@@ -87,9 +90,13 @@ Open `http://localhost:3000`.
 Before a push, run:
 
 ```bash
+npm run contracts:check
 npm run docs:validate
 npm run docs:links
 ```
+
+Contract checks validate the versioned schemas and invented request/response examples.
+They include failure cases for matching, payment facts, evidence, and incomplete service lines.
 
 ### Publishing
 

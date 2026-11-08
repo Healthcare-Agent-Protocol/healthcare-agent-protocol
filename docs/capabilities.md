@@ -4,7 +4,8 @@ description: "Nine proposed business functions for healthcare revenue cycle work
 ---
 
 These nine functions organize the initial RCM business scope.
-The identifiers below are provisional design labels. They are not registered namespaces or published wire contracts.
+The capability identifiers below are provisional design labels, not registered namespaces.
+The first operation has a separate draft contract and schemas.
 
 | Proposed identifier | Business function | Example operations |
 | --- | --- | --- |
@@ -24,11 +25,16 @@ Discovery must show that subset and its applicable limits.
 
 ## First operation
 
-The first proposed operation reads claim status under the HAP-1 scope `claim.status.read`.
-Its request and result schemas remain to be specified.
+[`rcm.claims.status.get`](../spec/claims/claim-status.md) reads one authorized claim under the HAP-1 scope `claim.status.read`.
+Its business version is `1.0-draft.1`, separate from the identity protocol version.
 
-The operation contract must distinguish transport success, authorization success, and the claim's business status.
-It must define claim matching, line-level results, missing information, evidence, and the time of observation.
+The caller selects status and supporting question groups: amounts, payments, denials, pending requirements, service lines, submission, review options, remittance, coordination, reprocessing, and follow-up.
+The response separates lookup outcome, authorization, claim business state, missing facts, source evidence, and observation time.
+It preserves line-level outcomes and distinguishes payment issuance, settlement, bulk totals, and this claim's allocation.
+
+The [operation reference](../spec/claims/claim-status.md) defines matching, JSON schemas, example requests and responses, and its A2A 1.0 mapping.
+A confirmed lookup miss can return payer-level submission guidance without inventing claim facts.
+Reading instructions or an existing case does not submit a claim, start reprocessing, file an appeal, or request an EOB.
 
 ## Extensions
 
