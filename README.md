@@ -14,7 +14,7 @@ The protocol and current business contract are pinned to `1.0-draft.1` during dr
 
 ## Start here
 
-The website has two pages:
+Read the [introduction](https://superdial-2e67a944.mintlify.app) and the two protocol pages:
 
 - [Business capabilities](https://superdial-2e67a944.mintlify.app/docs/capabilities) covers the proposed RCM operations.
 - [Identity and access](https://superdial-2e67a944.mintlify.app/spec/identity/hap-1) covers API authentication, phone verification, provider delegation, and payer access checks.
@@ -22,8 +22,8 @@ The website has two pages:
 The first operation is `rcm.claims.status.get`.
 Its detailed [claim-status contract](spec/claims/claim-status.md), [schemas](schemas/claims/1.0-draft.1), and [invented examples](examples/claims/1.0-draft.1) stay in this repository.
 
-To participate, read [Contributing](CONTRIBUTING.md).
-Report vulnerabilities using the [security policy](SECURITY.md).
+To participate, read [Contributing](https://superdial-2e67a944.mintlify.app/community/contributing).
+Report vulnerabilities using the [security policy](https://superdial-2e67a944.mintlify.app/community/security).
 
 ## Existing standards
 
@@ -44,7 +44,7 @@ This repository uses the [Apache License 2.0](LICENSE).
 The documentation uses [Mintlify](https://www.mintlify.com/docs/quickstart).
 Read the [live documentation](https://superdial-2e67a944.mintlify.app).
 Site settings and navigation live in [docs.json](docs.json).
-The site publishes only the capabilities and identity pages.
+The site includes an introduction, business capabilities, identity and access, contributing, and security.
 [.mintignore](.mintignore) excludes repository-only references from the website.
 
 Use Node.js 24 LTS.

@@ -14,8 +14,11 @@
   },
   "navigation": {
     "pages": [
+      "index",
       "docs/capabilities",
-      "spec/identity/hap-1"
+      "spec/identity/hap-1",
+      "community/contributing",
+      "community/security"
     ]
   },
   "navbar": {
@@ -37,14 +40,6 @@
   },
   "redirects": [
     {
-      "source": "/",
-      "destination": "/docs/capabilities"
-    },
-    {
-      "source": "/index",
-      "destination": "/docs/capabilities"
-    },
-    {
       "source": "/docs/architecture",
       "destination": "/docs/capabilities"
     },
@@ -59,14 +54,6 @@
     {
       "source": "/spec/claims/claim-status",
       "destination": "https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/spec/claims/claim-status.md"
-    },
-    {
-      "source": "/community/contributing",
-      "destination": "https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/CONTRIBUTING.md"
-    },
-    {
-      "source": "/community/security",
-      "destination": "https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/SECURITY.md"
     }
   ]
 }

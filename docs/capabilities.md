@@ -42,8 +42,3 @@ Reading instructions or an existing case does not submit a claim, start reproces
 Specialties and payer workflows can require additional fields or operations.
 Extensions need explicit identifiers, versions, schemas, and compatibility rules.
 An extension must preserve the core identity, authority, and data boundaries.
-
-## Join HAP-1
-
-Help shape the protocol in [GitHub Discussions](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/discussions).
-To join the [HAP-1 organization](https://github.com/Healthcare-Agent-Protocol), introduce yourself in Discussions and request an invitation.

@@ -1,0 +1,86 @@
+---
+title: "Healthcare Agent Protocol"
+sidebarTitle: "Introduction"
+description: "Shared RCM workflows, business operations, and access rules for healthcare agents and payer systems."
+---
+
+Healthcare Agent Protocol (HAP) is a draft standard for agents that handle revenue cycle management (RCM) work with payers.
+
+A billing team's agent needs to find out why a claim hasn't been paid.
+Both sides need to agree on what the agent is asking, which information it should send, and what an answer should include.
+The payer also needs to know who's calling and whether the agent can act for that provider.
+HAP gives both sides a shared way to handle that exchange.
+
+HAP-1 is intended to cover the RCM work itself: eligibility, authorizations, claims, payments, and appeals.
+It brings business operations, the information exchanged, and the rules for completing the work into one protocol.
+Identity and access checks support those workflows.
+
+<Note>
+  Current draft: `1.0-draft.1`. We're starting with a claim-status pilot. The design is open for feedback; the software and interoperability tests are still to come.
+</Note>
+
+## Start with a claim-status check
+
+Has the claim been paid? If it was denied, why? If it's still pending, what's missing?
+
+These are the questions the first pilot aims to answer.
+An agent should be able to ask about a claim and get its status, supporting details, and any next steps the payer provides.
+The answer should also say where the information came from and when it was checked.
+
+A successful lookup can still tell you that a claim is pending.
+The lookup is finished; the payer's work on the claim may still be underway.
+
+The [claim-status reference](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/spec/claims/claim-status.md) describes the proposed request and response format, with examples for payments, denials, missing information, and follow-up.
+
+## How a phone call would work
+
+The proposed phone flow starts before the agent dials:
+
+1. **Find out where to register.** The payer publishes which service handles authentication for the number the agent plans to call.
+2. **Register the call.** The agent authenticates through an API. The service returns a short-lived call reference and instructions for using it.
+3. **Place the call.** The agent sends the agreed reference using touch-tone digits (DTMF), spoken digits, or another supported method.
+4. **Match the incoming call.** The payer or its chosen verifier connects that call to the authenticated registration.
+
+The reference lets the payer connect the caller to a registration it already trusts.
+The payer then checks whether that agent has permission to access the requested information.
+
+The payer can run verification itself or choose a partner.
+RN/JIP signaling and audio watermarks are also under consideration, with technical details still to agree.
+The [identity and access page](/spec/identity/hap-1#phone-calls) explains the flow and the open questions.
+
+## The payer controls access
+
+Each payer chooses how agents authenticate and what they can access.
+Recognizing an agent's identity is one check; confirming its permission to act for a provider is another.
+The payer applies its own rules before sharing patient or claim information.
+
+The payer can keep the agent's identity and provider permissions in its own systems or an approved service.
+Both phone calls and API requests use the authenticated agent's identity and those provider permissions.
+The phone-call reference connects a call to its registration; it does not give the caller permission to read a claim.
+
+Patient and claim information stays between the agent and payer.
+An external call verifier gets only the identity and call information needed for verification.
+
+## Explore the draft
+
+<CardGroup cols={2}>
+  <Card title="Business capabilities" icon="list-check" href="/docs/capabilities">
+    Explore the proposed scope, from eligibility and authorizations to claims, payments, and appeals.
+  </Card>
+  <Card title="Identity and access" icon="shield-halved" href="/spec/identity/hap-1">
+    See how agents authenticate through APIs and phone calls, and how payers check provider permissions.
+  </Card>
+</CardGroup>
+
+## How HAP fits with other standards
+
+HAP defines healthcare business operations and their meaning, starting with claim-status requests and answers.
+[A2A](https://a2a-protocol.org/latest/specification/) is one proposed way for agents to exchange those requests and results.
+HAP-1 can also be used without A2A.
+
+Payer integrations can use existing X12 transactions, FHIR resources, and APIs.
+HAP is an independent project.
+
+<Card title="Join the HAP-1 community" icon="comments" href="/community/contributing">
+  Introduce yourself in GitHub Discussions, request an organization invitation, and help shape the draft.
+</Card>
