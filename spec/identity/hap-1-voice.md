@@ -8,7 +8,7 @@ The agent starts the exchange. The payer selects the registration and verificati
 That service can be the payer itself, Pindrop, or another payer-approved service.
 These are proposed roles, not claims of vendor implementation or support.
 
-**Draft version:** `1.0-draft.5`. This voice profile follows the [core identity and access requirements](/spec/identity/hap-1).
+**Draft version:** `1.0-draft.1`. This voice profile follows the [core identity and access requirements](/spec/identity/hap-1).
 The examples propose a contract for partner review; schemas and independent interoperability checks remain open.
 
 ## Separate identity, correlation, and access
@@ -50,7 +50,7 @@ The `scope` value is proposed by HAP, not an existing OAuth registration.
 
 ```json
 {
-  "hap_version": "1.0-draft.5",
+  "hap_version": "1.0-draft.1",
   "payer_id": "payer-example",
   "voice_registration": {
     "endpoint": "https://verifier.example/hap/call-refs",
@@ -115,7 +115,7 @@ Idempotency-Key: example-registration-attempt-1
 
 ```json
 {
-  "hap_version": "1.0-draft.5",
+  "hap_version": "1.0-draft.1",
   "payer_id": "payer-example",
   "destination": "+12025550123",
   "client_call_id": "example-outbound-attempt-1",
@@ -131,7 +131,7 @@ A proposed successful response uses `201 Created` and `Cache-Control: no-store`:
 
 ```json
 {
-  "hap_version": "1.0-draft.5",
+  "hap_version": "1.0-draft.1",
   "call_ref": "example-call-ref-1",
   "status": "registered",
   "expires_in": 300,
@@ -260,4 +260,4 @@ Use invented destinations, client identities, and tokens.
 - Stop protected work if authority expires, is revoked, or cannot be checked during an already verified call.
 - Confirm registration traffic, logs, and external media feeds contain no protected call or business content.
 
-The draft 5 registration examples select the new identity version explicitly.
+The registration examples are pinned to `1.0-draft.1`.

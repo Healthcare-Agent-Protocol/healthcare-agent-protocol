@@ -7,16 +7,14 @@ const Ajv2020 = require('ajv/dist/2020').default;
 const addFormats = require('ajv-formats');
 
 const root = join(__dirname, '..');
-const version = '1.0-draft.2';
+const version = '1.0-draft.1';
 const schemaDir = join(root, 'schemas/claims', version);
 const exampleDir = join(root, 'examples/claims', version);
 const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'));
 const ajv = new Ajv2020({ allErrors: true, strict: true, strictRequired: false });
 addFormats(ajv);
-for (const supported of ['1.0-draft.1', version]) {
-  for (const name of ['claim-status', 'request', 'response']) {
-    ajv.addSchema(readJson(join(root, 'schemas/claims', supported, `${name}.schema.json`)));
-  }
+for (const name of ['claim-status', 'request', 'response']) {
+  ajv.addSchema(readJson(join(schemaDir, `${name}.schema.json`)));
 }
 const requestValidator = ajv.getSchema(readJson(join(schemaDir, 'request.schema.json')).$id);
 const responseValidator = ajv.getSchema(readJson(join(schemaDir, 'response.schema.json')).$id);
@@ -268,30 +266,27 @@ test('object key order does not change claim identity', () => {
   validPair(pair.request, pair.response);
 });
 
-for (const businessVersion of ['1.0-draft.1', version]) {
-  test(`Agent Card ${businessVersion} selects its business schemas and standard OAuth access`, () => {
-    const cardDir = join(root, 'examples/claims', businessVersion);
-    const cardSchemaDir = join(root, 'schemas/claims', businessVersion);
-    const card = readJson(join(cardDir, 'a2a.agent-card.json'));
-    const declaration = card.capabilities.extensions[0];
-    const request = readJson(join(cardDir, 'a2a.send-message.json'));
-    assert.equal(declaration.uri, request.params.message.extensions[0]);
-    assert.equal(declaration.params.operation_version, businessVersion);
-    assert.equal(declaration.params.request_schema, readJson(join(cardSchemaDir, 'request.schema.json')).$id);
-    assert.equal(declaration.params.response_schema, readJson(join(cardSchemaDir, 'response.schema.json')).$id);
-    assert.deepEqual(declaration.params.supported_sections,
-      readJson(join(cardSchemaDir, 'claim-status.schema.json')).$defs.Request.properties.requested_sections.items.enum);
-    assert.equal(declaration.params.hap_version, '1.0-draft.5');
-    assert.equal(Object.hasOwn(declaration.params, 'issuer_policy_url'), false);
-    assert.equal(declaration.params.resource, card.supportedInterfaces[0].url);
-    const requiredScopes = card.securityRequirements[0].schemes.payer_oauth.list;
-    const oauthFlow = card.securitySchemes.payer_oauth.oauth2SecurityScheme.flows.clientCredentials;
-    assert.deepEqual(requiredScopes, ['claim.status.read']);
-    for (const scope of requiredScopes) assert.equal(Object.hasOwn(oauthFlow.scopes, scope), true);
-    assert.equal(new URL(oauthFlow.tokenUrl).protocol, 'https:');
-    assert.equal(card.supportedInterfaces[0].protocolVersion, '1.0');
-  });
-}
+test('Agent Card selects the pinned business schemas and standard OAuth access', () => {
+  const card = readJson(join(exampleDir, 'a2a.agent-card.json'));
+  const declaration = card.capabilities.extensions[0];
+  const request = readJson(join(exampleDir, 'a2a.send-message.json'));
+  assert.equal(card.version, version);
+  assert.equal(declaration.uri, request.params.message.extensions[0]);
+  assert.equal(declaration.params.operation_version, version);
+  assert.equal(declaration.params.request_schema, readJson(join(schemaDir, 'request.schema.json')).$id);
+  assert.equal(declaration.params.response_schema, readJson(join(schemaDir, 'response.schema.json')).$id);
+  assert.deepEqual(declaration.params.supported_sections,
+    readJson(join(schemaDir, 'claim-status.schema.json')).$defs.Request.properties.requested_sections.items.enum);
+  assert.equal(declaration.params.hap_version, version);
+  assert.equal(Object.hasOwn(declaration.params, 'issuer_policy_url'), false);
+  assert.equal(declaration.params.resource, card.supportedInterfaces[0].url);
+  const requiredScopes = card.securityRequirements[0].schemes.payer_oauth.list;
+  const oauthFlow = card.securitySchemes.payer_oauth.oauth2SecurityScheme.flows.clientCredentials;
+  assert.deepEqual(requiredScopes, ['claim.status.read']);
+  for (const scope of requiredScopes) assert.equal(Object.hasOwn(oauthFlow.scopes, scope), true);
+  assert.equal(new URL(oauthFlow.tokenUrl).protocol, 'https:');
+  assert.equal(card.supportedInterfaces[0].protocolVersion, '1.0');
+});
 
 test('A2A input-required message contains a valid business clarification', () => {
   const task = readJson(join(exampleDir, 'a2a.input-required.json')).result.task;
@@ -311,25 +306,6 @@ test('the operation page shows the validated pending request and response', () =
   validPair(examples[0], examples[1]);
   assert.deepEqual(examples[0], fixture('pending_information').request);
   assert.deepEqual(examples[1], fixture('pending_information').response);
-});
-
-for (const name of readdirSync(join(root, 'examples/claims/1.0-draft.1'))
-  .filter(name => name.endsWith('.request.json')).map(name => name.replace('.request.json', ''))) {
-  test(`retained draft 1 ${name} example still validates`, () => {
-    const request = readJson(join(root, 'examples/claims/1.0-draft.1', `${name}.request.json`));
-    const response = readJson(join(root, 'examples/claims/1.0-draft.1', `${name}.response.json`));
-    const schemaBase = 'https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.1/';
-    assert.equal(ajv.getSchema(schemaBase + 'request.schema.json')(request), true);
-    assert.equal(ajv.getSchema(schemaBase + 'response.schema.json')(response), true);
-    assert.deepEqual(semanticErrors(request, response), []);
-  });
-}
-
-test('draft 1 rejects the new draft 2 sections', () => {
-  const request = fixture('claim_adjudication_context').request;
-  request.operation_version = '1.0-draft.1';
-  const base = 'https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.1/';
-  assert.equal(ajv.getSchema(base + 'request.schema.json')(request), false);
 });
 
 test('adjudication context cannot represent a fresh eligibility inquiry', () => {

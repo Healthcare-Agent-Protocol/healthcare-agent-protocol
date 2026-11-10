@@ -11,23 +11,23 @@ The [HAP-1 identity and access profile](/spec/identity/hap-1) requires authentic
 These checks use the authenticated client identity and trusted server-side authorization records.
 The A2A example on this page uses ordinary OAuth API authentication under the [HTTP access profile](/spec/identity/hap-1-http).
 
-## V1 draft 2
+## V1 draft 1
 
 | Setting | Value |
 | --- | --- |
 | Operation | `rcm.claims.status.get` |
-| Business version | `1.0-draft.2`, matched exactly |
+| Business version | `1.0-draft.1`, matched exactly |
 | Required scope | `claim.status.read` |
 | Initial record boundary | The requested claim belongs to the authorized billing-provider NPI |
 | Lookup unit | One claim submission; its service lines can have different outcomes |
 | A2A binding | Version `1.0`, JSON-RPC `SendMessage`, with JSON data parts |
-| Core identity version | HAP-1 `1.0-draft.5`; this operation has its own version |
+| Core identity version | HAP-1 `1.0-draft.1` |
 | Example API authentication | OAuth client credentials with an ordinary bearer access token |
 | Schema dialect | JSON Schema Draft 2020-12 |
 
-The versioned [request schema](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.2/request.schema.json),
-[response schema](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.2/response.schema.json), and
-[shared definitions](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.2/claim-status.schema.json) define the machine-readable structure.
+The versioned [request schema](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.1/request.schema.json),
+[response schema](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.1/response.schema.json), and
+[shared definitions](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.1/claim-status.schema.json) define the machine-readable structure.
 The rules on this page define its business meaning.
 These are HAP definitions, not registered A2A operations or X12 transactions.
 
@@ -58,16 +58,8 @@ Reading these details does not submit a claim, start reprocessing, file an appea
 Those changes need separate operation contracts, permissions, and idempotency rules.
 This draft advertises no write operation.
 
-Draft 2 adds `adjudication_context`, existing `reviews`, and original-versus-corrected submission references.
-It also distinguishes a claims administrator from an actual claim-forwarding event.
-
-## V1 draft 1
-
-The [draft 1 schemas](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/tree/main/schemas/claims/1.0-draft.1) and
-[business examples](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/tree/main/examples/claims/1.0-draft.1) remain unchanged.
-They do not accept draft 2's new sections or fields.
-Clients select the exact advertised business version rather than sending new fields under the earlier version.
-Both business versions' Agent Cards now advertise HAP-1 identity version `1.0-draft.5` and ordinary OAuth API authentication.
+The current business contract, schemas, and examples are pinned to `1.0-draft.1`.
+The Agent Card advertises that version for both the business operation and its identity profile.
 
 ## Request and matching
 
@@ -121,7 +113,7 @@ The following request asks what is pending and what to do next.
 ```json
 {
   "operation": "rcm.claims.status.get",
-  "operation_version": "1.0-draft.2",
+  "operation_version": "1.0-draft.1",
   "request_id": "example-lookup-001",
   "payer_id": "payer-example",
   "billing_provider_npi": "0000000000",
@@ -261,7 +253,7 @@ The payer's due date and follow-up date are business facts, distinct from when t
 ```json
 {
   "operation": "rcm.claims.status.get",
-  "operation_version": "1.0-draft.2",
+  "operation_version": "1.0-draft.1",
   "request_id": "example-lookup-001",
   "response_id": "example-snapshot-001",
   "payer_id": "payer-example",
@@ -352,7 +344,7 @@ The payer's due date and follow-up date are business facts, distinct from when t
 ```
 
 Other complete example pairs cover
-[paid bulk payments](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/tree/main/examples/claims/1.0-draft.2),
+[paid bulk payments](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/tree/main/examples/claims/1.0-draft.1),
 denials, zero-dollar deductible outcomes, mixed lines, partial payment details, confirmed misses, ambiguous matches, additional inputs, and outages.
 The example directory contains fifteen request/response pairs and A2A envelopes.
 
@@ -364,15 +356,14 @@ It uses the existing A2A task and artifact model; it adds no new RPC method or t
 The proposed extension identifier is:
 
 ```text
-https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/spec/claims/claim-status.md#v1-draft-2
+https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/spec/claims/claim-status.md#v1-draft-1
 ```
 
 An Agent Card advertises the extension through `capabilities.extensions` and the operation through `skills`.
 The extension parameters name the operation version, request schema, response schema, supported sections, and initial record rule.
 The card also declares the selected transport, security scheme, and required `claim.status.read` scope.
-The [example Agent Card](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.2/a2a.agent-card.json) contains those declarations.
-Both published business versions' Agent Cards select HAP-1 identity version `1.0-draft.5`.
-They declare ordinary OAuth API authentication through `securitySchemes` and `securityRequirements`.
+The [example Agent Card](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.1/a2a.agent-card.json) contains those declarations.
+The Agent Card selects HAP-1 version `1.0-draft.1` and declares ordinary OAuth API authentication through `securitySchemes` and `securityRequirements`.
 The payer resolves provider delegation and record permissions from trusted server-side records.
 The business schemas do not prescribe a token format or another credential exchange.
 This is an application profile under [A2A extension rules](https://a2a-protocol.org/latest/topics/extensions/), not a claim of A2A registration.
@@ -386,7 +377,7 @@ POST /a2a HTTP/1.1
 Host: payer.example
 Authorization: Bearer <api-access-token>
 A2A-Version: 1.0
-A2A-Extensions: https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/spec/claims/claim-status.md#v1-draft-2
+A2A-Extensions: https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/spec/claims/claim-status.md#v1-draft-1
 Content-Type: application/json
 ```
 
@@ -401,7 +392,7 @@ Terminal lookup results appear in `task.artifacts[].parts[].data` under a stable
 The artifact declares `mediaType: application/json` and the HAP extension URI.
 An interrupted task carries the structured input request in `status.message.parts[].data`.
 The server message identifies its task and context and uses `ROLE_AGENT`.
-The [input-required task](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.2/a2a.input-required.json) shows an ambiguous match without candidate disclosure.
+The [input-required task](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.1/a2a.input-required.json) shows an ambiguous match without candidate disclosure.
 
 | Layer or outcome | Representation |
 | --- | --- |
@@ -414,8 +405,8 @@ The [input-required task](https://raw.githubusercontent.com/Healthcare-Agent-Pro
 | Source failure giving `unavailable` | `TASK_STATE_FAILED` with a safe result describing the failure |
 | Claim pending, denied, or awaiting payment | The lookup task can still be `TASK_STATE_COMPLETED`; claim business state stays in the result |
 
-The [request envelope](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.2/a2a.send-message.json) and
-[completed task](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.2/a2a.completed-task.json) contain complete invented examples.
+The [request envelope](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.1/a2a.send-message.json) and
+[completed task](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.1/a2a.completed-task.json) contain complete invented examples.
 A client supplies additional inputs through a new `SendMessage` on the same task and context, with a new business `request_id`.
 Invalid credentials do not become a business `input_required` request or a claim denial.
 

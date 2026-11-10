@@ -32,10 +32,12 @@
             "remittance",
             "coordination_of_benefits",
             "reprocessing",
-            "follow_up"
+            "follow_up",
+            "adjudication_context",
+            "reviews"
           ],
           "record_rule": "billing_provider_claims",
-          "hap_version": "1.0-draft.5",
+          "hap_version": "1.0-draft.1",
           "resource": "https://payer.example/a2a",
           "retry_window_seconds": 600
         }

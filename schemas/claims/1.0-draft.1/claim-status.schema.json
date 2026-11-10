@@ -801,6 +801,26 @@
             "calendar_days",
             "business_days"
           ]
+        },
+        "claim_submission_type": {
+          "type": "string",
+          "enum": [
+            "original",
+            "corrected",
+            "replacement",
+            "void",
+            "unknown"
+          ]
+        },
+        "original_payer_claim_number": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "corrected_payer_claim_number": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
         }
       },
       "additionalProperties": false,
@@ -903,11 +923,48 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 2000
+        },
+        "administrator": {
+          "type": "object",
+          "properties": {
+            "organization_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "tpa",
+                "ipa",
+                "medical_group",
+                "payer",
+                "other"
+              ]
+            },
+            "contact_routes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Route"
+              },
+              "minItems": 0,
+              "maxItems": 100
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "role"
+          ]
         }
       },
       "additionalProperties": false,
       "required": [
-        "forwarded",
         "coordination_status"
       ]
     },
@@ -3309,11 +3366,13 @@
               "remittance",
               "coordination_of_benefits",
               "reprocessing",
-              "follow_up"
+              "follow_up",
+              "adjudication_context",
+              "reviews"
             ]
           },
           "minItems": 1,
-          "maxItems": 12,
+          "maxItems": 14,
           "uniqueItems": true,
           "contains": {
             "const": "status"
@@ -3424,6 +3483,11 @@
           },
           "minItems": 1,
           "maxItems": 100
+        },
+        "payer_claim_reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
         }
       },
       "additionalProperties": false,
@@ -3515,6 +3579,12 @@
             },
             "follow_up": {
               "$ref": "#/$defs/FollowUpSection"
+            },
+            "adjudication_context": {
+              "$ref": "#/$defs/AdjudicationContextSection"
+            },
+            "reviews": {
+              "$ref": "#/$defs/ReviewsSection"
             }
           },
           "additionalProperties": false,
@@ -3821,6 +3891,637 @@
         },
         "data": {
           "$ref": "#/$defs/PayerSubmissionGuidance"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Gap"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "not_stated",
+            "source_unavailable",
+            "not_supported",
+            "not_authorized",
+            "source_conflict",
+            "not_applicable"
+          ]
+        },
+        "field_evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "format": "json-pointer"
+              },
+              "evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+                },
+                "minItems": 1,
+                "maxItems": 100
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "evidence_ids"
+            ]
+          },
+          "minItems": 0,
+          "maxItems": 100
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "availability"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "availability": {
+                "enum": [
+                  "available",
+                  "partial"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "data",
+              "evidence_ids"
+            ]
+          },
+          "else": {
+            "required": [
+              "reason"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "data"
+                  ]
+                },
+                {
+                  "required": [
+                    "gaps"
+                  ]
+                },
+                {
+                  "required": [
+                    "field_evidence"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "availability": {
+                "const": "partial"
+              }
+            },
+            "required": [
+              "availability"
+            ]
+          },
+          "then": {
+            "required": [
+              "gaps"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "availability": {
+                "const": "available"
+              }
+            },
+            "required": [
+              "availability"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "gaps"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "AdjudicationContext": {
+      "type": "object",
+      "properties": {
+        "basis": {
+          "const": "claim_record"
+        },
+        "as_of_service_period": {
+          "$ref": "#/$defs/ServicePeriod"
+        },
+        "plan": {
+          "type": "object",
+          "properties": {
+            "payer_plan_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "network_type": {
+              "type": "string",
+              "enum": [
+                "ppo",
+                "hmo",
+                "epo",
+                "pos",
+                "other",
+                "unknown"
+              ]
+            },
+            "product_type": {
+              "type": "string",
+              "enum": [
+                "commercial",
+                "medicare",
+                "medicaid",
+                "other",
+                "unknown"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "minProperties": 1
+        },
+        "member_coverage": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "eligible",
+                "ineligible",
+                "unknown"
+              ]
+            },
+            "member_on_file": {
+              "type": "boolean"
+            },
+            "effective_date": {
+              "type": "string",
+              "format": "date"
+            },
+            "termination_date": {
+              "type": "string",
+              "format": "date"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "status"
+          ]
+        },
+        "provider_network": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "provider_role": {
+                "type": "string",
+                "enum": [
+                  "billing",
+                  "rendering",
+                  "referring"
+                ]
+              },
+              "provider_npi": {
+                "type": "string",
+                "pattern": "^[0-9]{10}$"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "in_network",
+                  "out_of_network",
+                  "unknown"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "provider_role",
+              "status"
+            ]
+          },
+          "minItems": 0,
+          "maxItems": 100
+        },
+        "authorizations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "prior_authorization",
+                  "referral"
+                ]
+              },
+              "reference": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "on_file": {
+                "type": "boolean"
+              },
+              "determination": {
+                "type": "string",
+                "enum": [
+                  "valid_for_claim",
+                  "not_valid_for_claim",
+                  "unknown"
+                ]
+              },
+              "service_period": {
+                "$ref": "#/$defs/ServicePeriod"
+              },
+              "approved_units": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,3})?$"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "determination"
+            ]
+          },
+          "minItems": 0,
+          "maxItems": 100
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "basis",
+        "as_of_service_period"
+      ],
+      "minProperties": 3
+    },
+    "ReviewCase": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "appeal",
+            "reconsideration",
+            "dispute"
+          ]
+        },
+        "review_reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "level": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "submitted",
+            "received",
+            "in_review",
+            "additional_information_required",
+            "decided",
+            "closed",
+            "withdrawn",
+            "unknown"
+          ]
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "upheld",
+            "overturned",
+            "partially_overturned",
+            "dismissed",
+            "pending",
+            "unknown"
+          ]
+        },
+        "submitted_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "received_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "decision_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "expected_completion_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "status",
+        "evidence_ids"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "decision_date"
+            ]
+          },
+          "then": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "decided",
+                  "closed"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "enum": [
+                  "upheld",
+                  "overturned",
+                  "partially_overturned",
+                  "dismissed"
+                ]
+              }
+            },
+            "required": [
+              "decision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "decided",
+                  "closed"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "AdjudicationContextSection": {
+      "type": "object",
+      "properties": {
+        "availability": {
+          "type": "string",
+          "enum": [
+            "available",
+            "partial",
+            "not_available",
+            "not_applicable",
+            "not_supported"
+          ]
+        },
+        "data": {
+          "$ref": "#/$defs/AdjudicationContext"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Gap"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "not_stated",
+            "source_unavailable",
+            "not_supported",
+            "not_authorized",
+            "source_conflict",
+            "not_applicable"
+          ]
+        },
+        "field_evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "format": "json-pointer"
+              },
+              "evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+                },
+                "minItems": 1,
+                "maxItems": 100
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "evidence_ids"
+            ]
+          },
+          "minItems": 0,
+          "maxItems": 100
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "availability"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "availability": {
+                "enum": [
+                  "available",
+                  "partial"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "data",
+              "evidence_ids"
+            ]
+          },
+          "else": {
+            "required": [
+              "reason"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "data"
+                  ]
+                },
+                {
+                  "required": [
+                    "gaps"
+                  ]
+                },
+                {
+                  "required": [
+                    "field_evidence"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "availability": {
+                "const": "partial"
+              }
+            },
+            "required": [
+              "availability"
+            ]
+          },
+          "then": {
+            "required": [
+              "gaps"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "availability": {
+                "const": "available"
+              }
+            },
+            "required": [
+              "availability"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "gaps"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ReviewsSection": {
+      "type": "object",
+      "properties": {
+        "availability": {
+          "type": "string",
+          "enum": [
+            "available",
+            "partial",
+            "not_available",
+            "not_applicable",
+            "not_supported"
+          ]
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReviewCase"
+          },
+          "minItems": 0,
+          "maxItems": 100
         },
         "evidence_ids": {
           "type": "array",

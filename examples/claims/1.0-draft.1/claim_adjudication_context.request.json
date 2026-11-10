@@ -1,6 +1,6 @@
 {
   "operation": "rcm.claims.status.get",
-  "operation_version": "1.0-draft.2",
+  "operation_version": "1.0-draft.1",
   "request_id": "example-lookup-001",
   "payer_id": "payer-example",
   "billing_provider_npi": "0000000000",
@@ -18,7 +18,9 @@
   },
   "requested_sections": [
     "status",
-    "pending_requirements",
-    "follow_up"
+    "denials",
+    "review_options",
+    "reprocessing",
+    "adjudication_context"
   ]
 }

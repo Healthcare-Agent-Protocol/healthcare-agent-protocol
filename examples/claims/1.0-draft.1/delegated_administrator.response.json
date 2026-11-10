@@ -1,6 +1,6 @@
 {
   "operation": "rcm.claims.status.get",
-  "operation_version": "1.0-draft.2",
+  "operation_version": "1.0-draft.1",
   "request_id": "example-lookup-001",
   "response_id": "example-snapshot-001",
   "payer_id": "payer-example",
@@ -36,8 +36,7 @@
     ],
     "evidence_ids": [
       "example-observation-1"
-    ],
-    "payer_claim_reference": "EXAMPLE-CLAIM-REFERENCE-001"
+    ]
   },
   "sections": {
     "status": {
@@ -136,11 +135,21 @@
         "example-observation-1"
       ]
     },
-    "submission": {
+    "coordination_of_benefits": {
       "availability": "available",
       "data": {
-        "claim_submission_type": "corrected",
-        "original_payer_claim_number": "EXAMPLE-ORIGINAL-CLAIM-001"
+        "coordination_status": "delegated",
+        "administrator": {
+          "organization_id": "example-administrator",
+          "name": "Example claims administrator",
+          "role": "tpa",
+          "contact_routes": [
+            {
+              "channel": "portal",
+              "url": "https://administrator.example/claims"
+            }
+          ]
+        }
       },
       "evidence_ids": [
         "example-observation-1"

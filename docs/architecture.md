@@ -12,12 +12,12 @@ This document describes the proposed architecture. It does not define a wire con
 | Layer | Responsibility | Initial status |
 | --- | --- | --- |
 | Business operations | Define RCM actions, inputs, results, evidence, and business outcomes | Claim-status contract and schemas; other capabilities remain proposed |
-| Identity and access | Payers or approved services authenticate agents and maintain verified provider delegation and permissions | HAP-1 draft 5 |
+| Identity and access | Payers or approved services authenticate agents and maintain verified provider delegation and permissions | HAP-1 draft 1 |
 | Voice authentication | Agents register before dialing; the payer or its selected verifier correlates the incoming call | HAP-1 pre-call proposal |
 | Payer enforcement | The payer checks trusted authorization context, permitted operations, record limits, and current local blocks | Proposed access integration |
 | Payload privacy | An originating system can encrypt lookup data for the payer while agents forward an opaque payload | Optional pattern; detailed profile deferred |
 | Discovery and versions | Payers publish authentication requirements, approved services, registration endpoints, destination policies, and versions | JSON card proposal; schemas and per-number DNS profile remain open |
-| Transport bindings | Map contracts to HTTP, A2A, and voice channels | Draft 5 HTTP and voice proposals; A2A examples use ordinary OAuth API access |
+| Transport bindings | Map contracts to HTTP, A2A, and voice channels | Draft 1 HTTP and voice proposals; A2A examples use ordinary OAuth API access |
 | Integration adapters | Connect contracts to payer APIs, X12, FHIR, or assisted workflows | To be implemented |
 
 ## Business contracts
@@ -126,7 +126,7 @@ The encryption profile must bind the payload to the authenticated client, intend
 Encryption does not replace authentication or establish authority by itself.
 Results, visible metadata, errors, and receipts also need data minimization to preserve the intended privacy boundary.
 
-V0 describes this pattern without requiring an encryption implementation.
+The current draft describes this pattern without requiring an encryption implementation.
 A later profile will define the envelope, key discovery, rotation, algorithms, negotiation, request binding, and failure behavior.
 The [HAP-1 walkthrough](/spec/identity/hap-1#optional-payload-encryption) describes the core privacy pattern.
 

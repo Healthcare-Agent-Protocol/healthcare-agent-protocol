@@ -1,6 +1,6 @@
 {
   "operation": "rcm.claims.status.get",
-  "operation_version": "1.0-draft.2",
+  "operation_version": "1.0-draft.1",
   "request_id": "example-lookup-001",
   "response_id": "example-snapshot-001",
   "payer_id": "payer-example",

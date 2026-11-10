@@ -14,7 +14,7 @@ Identity and authorization information can stay with the payer or its approved s
 The agent carries a short-lived call reference through DTMF, spoken digits, or an agreed signaling method.
 HTTP clients use standard API authentication. HAP adds no separate access credential or issuance exchange.
 
-**Draft version:** `1.0-draft.5`. Working draft for partner review; the first proposed business pilot supports claim-status reading.
+**Draft version:** `1.0-draft.1`. Working draft for partner review; the first proposed business pilot supports claim-status reading.
 
 For phone calls, the agent registers a session through an authenticated API before dialing.
 The payer selects the service and correlation method through its discovery policy.
@@ -172,7 +172,7 @@ An encrypted deployment needs an agreed profile between the originating system a
 Selecting JWE alone does not define an interoperable HAP encryption profile.
 Key discovery, rotation, algorithm choices, capability negotiation, payload binding, and error rules remain future profile work.
 
-This section describes a privacy pattern for v0.
+This section describes an optional privacy pattern for the current draft.
 It adds no encryption fields or requirements to call registration.
 
 ## Standards and implementation
@@ -182,19 +182,17 @@ The registration proposal uses [OAuth client credentials](https://www.rfc-editor
 These standard API mechanisms establish the authenticated client without another HAP credential exchange.
 
 The [voice proposal](/spec/identity/hap-1-voice) adds pre-call registration and correlation under the same payer-controlled trust model.
-The [claim-status contract](/spec/claims/claim-status) defines business requests and results independently of the identity version.
+The [claim-status contract](/spec/claims/claim-status) defines the business requests and results under the same pinned draft.
 
 ### HTTP requests
 
-The [HTTP access profile](/spec/identity/hap-1-http) uses standard API authentication and payer-side authorization under `1.0-draft.5`.
+The [HTTP access profile](/spec/identity/hap-1-http) uses standard API authentication and payer-side authorization under `1.0-draft.1`.
 Its OAuth example uses an ordinary API access token, which can be an opaque reference to server-side state.
 HAP defines no custom token claims or separate grant exchange.
-The published A2A Agent Cards now select the draft 5 identity profile.
-Their business request and response schemas keep their independent versions.
+The published A2A Agent Card selects `1.0-draft.1` for the identity profile and claim-status contract.
+The current business schemas and examples use the same pinned version.
 
-### Version compatibility
+### Current draft
 
-Draft 5 replaces the earlier custom access-grant exchange with standard API authentication and server-side authorization.
-It preserves client authentication, call binding, provider delegation, record limits, and current payer authorization.
-The HTTP and call-registration examples now advertise `1.0-draft.5`.
-Implementations select the exact advertised version; earlier identity drafts are not interchangeable with draft 5.
+The protocol, current business contracts, schemas, and examples are pinned to `1.0-draft.1`.
+Implementations select that exact version through payer discovery.

@@ -7,7 +7,7 @@ HAP-1 HTTP requests use standard API authentication and payer-side authorization
 The payer resolves the client's verified provider relationships and permissions from trusted records.
 HAP defines no separate access credential, token format, or credential issuance exchange.
 
-**Draft version:** `1.0-draft.5`, shared with the [identity walkthrough](/spec/identity/hap-1) and [voice profile](/spec/identity/hap-1-voice).
+**Draft version:** `1.0-draft.1`, shared with the [identity walkthrough](/spec/identity/hap-1) and [voice profile](/spec/identity/hap-1-voice).
 This is a proposal for partner review. Reference software and independent interoperability checks remain open.
 
 ## Use standard API authentication
@@ -49,7 +49,7 @@ The payer publishes:
 | Authorization sources | Services, if any, trusted to establish provider delegation or permissions |
 | Policy validity | Cache lifetime or another explicit refresh rule |
 
-The [claim-status Agent Card](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.2/a2a.agent-card.json) declares OAuth through standard A2A security fields.
+The [claim-status Agent Card](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.1/a2a.agent-card.json) declares OAuth through standard A2A security fields.
 The discovery serialization for other integrations remains open.
 Public discovery information MUST contain no patient data, credentials, tokens, or delegation evidence.
 
@@ -63,7 +63,7 @@ It uses the authorization server's accepted client authentication and requests t
 OAuth handles the token request, response, expiry, and authentication errors.
 
 The client does not add HAP-specific version, provider constraints, or delegation evidence to the OAuth token request.
-The Agent Card advertises the HAP identity version separately from the business operation version.
+The Agent Card advertises `1.0-draft.1` for both the HAP identity profile and the current business operation.
 The payer establishes provider authority through its approved enrollment and authorization workflow.
 
 Client authentication identifies the organization and client making the request.
@@ -166,5 +166,5 @@ Use invented data and test credentials.
 - Repeat access checks on task retrieval, continuations, and retries.
 - Keep tokens and protected business data out of discovery, URLs, logs, and external status traffic.
 
-Draft 5 replaces the earlier HAP-specific access-grant exchange.
-Clients select the new identity version explicitly; business request and response schemas keep their independent versions.
+This profile and its examples are pinned to `1.0-draft.1`.
+Clients select that exact version through payer discovery.

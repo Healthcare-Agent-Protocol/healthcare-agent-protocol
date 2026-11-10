@@ -10,6 +10,8 @@ The same business contracts should support direct payer connections and connecti
 It includes claim-status schemas, invented examples, and contract checks.
 It does not yet contain a complete protocol, executable client or payer service, or independent conformance suite.
 
+The protocol and current business contract are pinned to `1.0-draft.1` during draft review.
+
 ## Start here
 
 | Document | Contents |
@@ -18,7 +20,7 @@ It does not yet contain a complete protocol, executable client or payer service,
 | [Business capabilities](docs/capabilities.md) | Nine proposed business functions |
 | [Claim status](spec/claims/claim-status.md) | Request and response schemas, follow-up question groups, and A2A 1.0 messages |
 | [HAP-1 identity and access](spec/identity/hap-1.md) | Identity and access profile supporting the RCM business operations |
-| [HAP-1 HTTP access](spec/identity/hap-1-http.md) | Standard API authentication and payer-side authorization for version `1.0-draft.5` |
+| [HAP-1 HTTP access](spec/identity/hap-1-http.md) | Standard API authentication and payer-side authorization for version `1.0-draft.1` |
 | [HAP-1 pre-call authentication](spec/identity/hap-1-voice.md) | Agent-initiated registration, payer-card discovery, and phone-call verification |
 | [Contributing](CONTRIBUTING.md) | Join GitHub Discussions and the HAP-1 organization |
 | [Security](SECURITY.md) | Data handling and vulnerability reporting |
@@ -26,7 +28,7 @@ It does not yet contain a complete protocol, executable client or payer service,
 ## First pilot
 
 The first proposed pilot is authorized claim-status access.
-The [claim-status contract](spec/claims/claim-status.md) defines operation `rcm.claims.status.get`, business version `1.0-draft.2`.
+The [claim-status contract](spec/claims/claim-status.md) defines operation `rcm.claims.status.get`, business version `1.0-draft.1`.
 
 1. The client discovers the payer's registration service, accepted authentication, and destination policy.
 2. The client authenticates through an API and registers the upcoming call.
@@ -35,7 +37,7 @@ The [claim-status contract](spec/claims/claim-status.md) defines operation `rcm.
 5. The payer verifies the call and checks provider delegation, permitted actions, record limits, and current local blocks.
 6. The payer returns the authorized result with its source and observation time.
 
-**HAP-1 draft 5 uses ordinary API authentication and payer-side authorization.**
+**HAP-1 draft 1 uses ordinary API authentication and payer-side authorization.**
 Identity, provider delegation, and permissions can stay with the payer or its approved service.
 Each payer can run verification directly or select an approved partner.
 HTTP clients use the payer's published security scheme, such as OAuth, without another HAP credential exchange.

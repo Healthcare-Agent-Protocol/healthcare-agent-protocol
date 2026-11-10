@@ -1,6 +1,6 @@
 {
   "operation": "rcm.claims.status.get",
-  "operation_version": "1.0-draft.2",
+  "operation_version": "1.0-draft.1",
   "request_id": "example-lookup-001",
   "response_id": "example-snapshot-001",
   "payer_id": "payer-example",
@@ -36,7 +36,8 @@
     ],
     "evidence_ids": [
       "example-observation-1"
-    ]
+    ],
+    "payer_claim_reference": "EXAMPLE-CLAIM-REFERENCE-001"
   },
   "sections": {
     "status": {
@@ -130,6 +131,16 @@
       "availability": "available",
       "data": {
         "interaction_reference": "EXAMPLE-INTERACTION-001"
+      },
+      "evidence_ids": [
+        "example-observation-1"
+      ]
+    },
+    "submission": {
+      "availability": "available",
+      "data": {
+        "claim_submission_type": "corrected",
+        "original_payer_claim_number": "EXAMPLE-ORIGINAL-CLAIM-001"
       },
       "evidence_ids": [
         "example-observation-1"
