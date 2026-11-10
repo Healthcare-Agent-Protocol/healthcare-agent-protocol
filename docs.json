@@ -13,41 +13,9 @@
     "dark": "/logo/dark.svg"
   },
   "navigation": {
-    "groups": [
-      {
-        "group": "Get started",
-        "pages": [
-          "index"
-        ]
-      },
-      {
-        "group": "Protocol design",
-        "pages": [
-          "docs/architecture",
-          "docs/capabilities"
-        ]
-      },
-      {
-        "group": "Business operations",
-        "pages": [
-          "spec/claims/claim-status"
-        ]
-      },
-      {
-        "group": "Identity and access",
-        "pages": [
-          "spec/identity/hap-1",
-          "spec/identity/hap-1-http",
-          "spec/identity/hap-1-voice"
-        ]
-      },
-      {
-        "group": "Project",
-        "pages": [
-          "community/contributing",
-          "community/security"
-        ]
-      }
+    "pages": [
+      "docs/capabilities",
+      "spec/identity/hap-1"
     ]
   },
   "navbar": {
@@ -60,16 +28,45 @@
         "label": "GitHub",
         "href": "https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Read HAP-1",
-      "href": "/docs/architecture"
-    }
+    ]
   },
   "footer": {
     "socials": {
       "github": "https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/docs/capabilities"
+    },
+    {
+      "source": "/index",
+      "destination": "/docs/capabilities"
+    },
+    {
+      "source": "/docs/architecture",
+      "destination": "/docs/capabilities"
+    },
+    {
+      "source": "/spec/identity/hap-1-http",
+      "destination": "/spec/identity/hap-1#api-requests"
+    },
+    {
+      "source": "/spec/identity/hap-1-voice",
+      "destination": "/spec/identity/hap-1#phone-calls"
+    },
+    {
+      "source": "/spec/claims/claim-status",
+      "destination": "https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/spec/claims/claim-status.md"
+    },
+    {
+      "source": "/community/contributing",
+      "destination": "https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/CONTRIBUTING.md"
+    },
+    {
+      "source": "/community/security",
+      "destination": "https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/SECURITY.md"
+    }
+  ]
 }

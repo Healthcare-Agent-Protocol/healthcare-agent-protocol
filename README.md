@@ -14,48 +14,16 @@ The protocol and current business contract are pinned to `1.0-draft.1` during dr
 
 ## Start here
 
-| Document | Contents |
-| --- | --- |
-| [Architecture](docs/architecture.md) | Protocol layers and authority boundaries |
-| [Business capabilities](docs/capabilities.md) | Nine proposed business functions |
-| [Claim status](spec/claims/claim-status.md) | Request and response schemas, follow-up question groups, and A2A 1.0 messages |
-| [HAP-1 identity and access](spec/identity/hap-1.md) | Identity and access profile supporting the RCM business operations |
-| [HAP-1 HTTP access](spec/identity/hap-1-http.md) | Standard API authentication and payer-side authorization for version `1.0-draft.1` |
-| [HAP-1 pre-call authentication](spec/identity/hap-1-voice.md) | Agent-initiated registration, payer-card discovery, and phone-call verification |
-| [Contributing](CONTRIBUTING.md) | Join GitHub Discussions and the HAP-1 organization |
-| [Security](SECURITY.md) | Data handling and vulnerability reporting |
+The website has two pages:
 
-## First pilot
+- [Business capabilities](https://superdial-2e67a944.mintlify.app/docs/capabilities) covers the proposed RCM operations.
+- [Identity and access](https://superdial-2e67a944.mintlify.app/spec/identity/hap-1) covers API authentication, phone verification, provider delegation, and payer access checks.
 
-The first proposed pilot is authorized claim-status access.
-The [claim-status contract](spec/claims/claim-status.md) defines operation `rcm.claims.status.get`, business version `1.0-draft.1`.
+The first operation is `rcm.claims.status.get`.
+Its detailed [claim-status contract](spec/claims/claim-status.md), [schemas](schemas/claims/1.0-draft.1), and [invented examples](examples/claims/1.0-draft.1) stay in this repository.
 
-1. The client discovers the payer's registration service, accepted authentication, and destination policy.
-2. The client authenticates through an API and registers the upcoming call.
-3. The service stores the authenticated registration and returns a short-lived call reference.
-4. The client calls the payer and sends the reference through the agreed method.
-5. The payer verifies the call and checks provider delegation, permitted actions, record limits, and current local blocks.
-6. The payer returns the authorized result with its source and observation time.
-
-**HAP-1 draft 1 uses ordinary API authentication and payer-side authorization.**
-Identity, provider delegation, and permissions can stay with the payer or its approved service.
-Each payer can run verification directly or select an approved partner.
-HTTP clients use the payer's published security scheme, such as OAuth, without another HAP credential exchange.
-Claim data passes directly between client and payer. Payload encryption is an optional privacy pattern.
-
-## Pre-call authentication
-
-For phone calls, the agent discovers the payer-selected registration endpoint from a payer-published JSON card or authenticated configuration.
-It authenticates to that service, registers the call, and gets a token plus correlation instructions before dialing.
-The agent carries the correlation into the call through a negotiated method such as DTMF or spoken digits.
-The payer checks it through a verification interface or gets a result from its existing verifier integration.
-The endpoint can belong to the payer, Pindrop, or another approved service; HAP requires no universal registrar.
-These are proposed roles, not claims of vendor support.
-
-The call reference establishes call correlation, not permission to access patient or claim data.
-The payer checks trusted server-side authorization records or its existing provider-verification workflow before protected work.
-API authentication, verified delegation, and record-access checks remain required.
-Per-number NAPTR, RN/JIP, watermark, and STIR/SHAKEN correlation remain proposed extensions requiring agreed profiles.
+To participate, read [Contributing](CONTRIBUTING.md).
+Report vulnerabilities using the [security policy](SECURITY.md).
 
 ## Existing standards
 
@@ -76,7 +44,8 @@ This repository uses the [Apache License 2.0](LICENSE).
 The documentation uses [Mintlify](https://www.mintlify.com/docs/quickstart).
 Read the [live documentation](https://superdial-2e67a944.mintlify.app).
 Site settings and navigation live in [docs.json](docs.json).
-Pages use the existing Markdown documents and the MDX introduction pages.
+The site publishes only the capabilities and identity pages.
+[.mintignore](.mintignore) excludes repository-only references from the website.
 
 Use Node.js 24 LTS.
 
