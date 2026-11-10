@@ -21,7 +21,7 @@ It does not yet contain a complete protocol, executable client or payer service,
 | [HAP-1 HTTP access](spec/identity/hap-1-http.md) | Standard API authentication and payer-side authorization for version `1.0-draft.5` |
 | [HAP-1 pre-call authentication](spec/identity/hap-1-voice.md) | Agent-initiated registration, payer-card discovery, and phone-call verification |
 | [Roadmap](docs/roadmap.md) | Work required for the first complete pilot |
-| [Contributing](CONTRIBUTING.md) | How to propose changes |
+| [Contributing](CONTRIBUTING.md) | Join GitHub Discussions and the HAP-1 organization |
 | [Security](SECURITY.md) | Data handling and vulnerability reporting |
 
 ## First pilot

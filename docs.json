@@ -54,6 +54,10 @@
   "navbar": {
     "links": [
       {
+        "label": "Discussions",
+        "href": "https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/discussions"
+      },
+      {
         "label": "GitHub",
         "href": "https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol"
       }
