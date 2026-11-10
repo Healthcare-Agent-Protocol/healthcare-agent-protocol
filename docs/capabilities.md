@@ -25,14 +25,14 @@ Discovery must show that subset and its applicable limits.
 
 ## First operation
 
-[`rcm.claims.status.get`](../spec/claims/claim-status.md) reads one authorized claim under the HAP-1 scope `claim.status.read`.
+[`rcm.claims.status.get`](/spec/claims/claim-status) reads one authorized claim under the HAP-1 scope `claim.status.read`.
 Its business contract has version `1.0-draft.2`; the supporting identity and access profile has its own version.
 
 The caller selects status and supporting groups: amounts, payments, denials, pending requirements, service lines, submission, reviews, remittance, coordination, adjudication context, reprocessing, and follow-up.
 The response separates lookup outcome, authorization, claim business state, missing facts, source evidence, and observation time.
 It preserves line-level outcomes and distinguishes payment issuance, settlement, bulk totals, and this claim's allocation.
 
-The [operation reference](../spec/claims/claim-status.md) defines matching, JSON schemas, example requests and responses, and its A2A 1.0 mapping.
+The [operation reference](/spec/claims/claim-status) defines matching, JSON schemas, example requests and responses, and its A2A 1.0 mapping.
 A confirmed lookup miss can return payer-level submission guidance without inventing claim facts.
 Reading instructions or an existing case does not submit a claim, start reprocessing, file an appeal, or request an EOB.
 

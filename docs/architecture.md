@@ -6,7 +6,7 @@ description: "RCM business operations, shared requests and results, capability d
 HAP-1 is intended to define RCM business operations and the shared rules agents need to carry them out.
 Its scope includes eligibility, authorizations, claims, payments, and appeals, with common requests, results, business outcomes, and follow-up rules.
 Capability discovery, identity, access, and transport support those workflows.
-The first business contract covers claim status; the [capabilities](capabilities.md) describe the broader proposed scope.
+The first business contract covers claim status; the [capabilities](/docs/capabilities) describe the broader proposed scope.
 This document describes the proposed architecture. It does not define a wire contract.
 
 | Layer | Responsibility | Initial status |
@@ -36,7 +36,7 @@ A capability groups related operations.
 An implementation must state the exact operations it supports.
 Claim-status support does not imply support for claim submission or reprocessing.
 
-The [claim-status operation](../spec/claims/claim-status.md) defines the first draft business contract.
+The [claim-status operation](/spec/claims/claim-status) defines the first draft business contract.
 It provides versioned request and response schemas, typed question groups, matching rules, evidence, partial answers, and A2A messages.
 Each business operation can have its own contract version within HAP-1.
 The identity and access profile also has its own version.
@@ -71,7 +71,7 @@ The payer checks verified delegation and the stored claim relationship before re
 Service trust, provider delegation, and resource access remain separate checks.
 An authenticated identity never overrides the payer's local access policy.
 
-The [HTTP access profile](../spec/identity/hap-1-http.md) uses standard API authentication and the same payer-side authorization checks.
+The [HTTP access profile](/spec/identity/hap-1-http) uses standard API authentication and the same payer-side authorization checks.
 Its OAuth example permits opaque access tokens and adds no custom token fields or separate HAP credential exchange.
 
 ## Agent-initiated phone calls
@@ -88,7 +88,7 @@ The result binds the authenticated client and registration to the actual payer-s
 This result establishes call identity. The payer resolves provider authority and permissions from trusted records before releasing protected information.
 
 Per-number NAPTR discovery and RN/JIP, watermark, or STIR/SHAKEN correlation require agreed extension profiles.
-The [pre-call proposal](../spec/identity/hap-1-voice.md) describes the exchange, data boundaries, and failure cases.
+The [pre-call proposal](/spec/identity/hap-1-voice) describes the exchange, data boundaries, and failure cases.
 
 ## Tasks and business outcomes
 
@@ -128,9 +128,9 @@ Results, visible metadata, errors, and receipts also need data minimization to p
 
 V0 describes this pattern without requiring an encryption implementation.
 A later profile will define the envelope, key discovery, rotation, algorithms, negotiation, request binding, and failure behavior.
-The [HAP-1 walkthrough](../spec/identity/hap-1.md#optional-payload-encryption) describes the core privacy pattern.
+The [HAP-1 walkthrough](/spec/identity/hap-1#optional-payload-encryption) describes the core privacy pattern.
 
 ## Design references
 
 - [A2A specification](https://a2a-protocol.org/latest/specification/): agent discovery, tasks, messages, and results.
-- [Identity and access profile](../spec/identity/hap-1.md): authentication and provider permissions supporting the business operations.
+- [Identity and access profile](/spec/identity/hap-1): authentication and provider permissions supporting the business operations.

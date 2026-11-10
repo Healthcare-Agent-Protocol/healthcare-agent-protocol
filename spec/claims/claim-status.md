@@ -7,9 +7,9 @@ description: "Claim matching, adjudication, payment tracing, denial details, pen
 The caller selects the question groups it needs. The payer returns structured answers, explicit gaps, and source evidence.
 
 This contract defines a proposed business operation and an A2A 1.0 mapping.
-The [HAP-1 identity and access profile](../identity/hap-1.md) requires authenticated identity, verified provider delegation, and payer-enforced record limits.
+The [HAP-1 identity and access profile](/spec/identity/hap-1) requires authenticated identity, verified provider delegation, and payer-enforced record limits.
 These checks use the authenticated client identity and trusted server-side authorization records.
-The A2A example on this page uses ordinary OAuth API authentication under the [HTTP access profile](../identity/hap-1-http.md).
+The A2A example on this page uses ordinary OAuth API authentication under the [HTTP access profile](/spec/identity/hap-1-http).
 
 ## V1 draft 2
 

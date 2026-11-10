@@ -5,7 +5,7 @@ description: "Identity and provider permissions supporting HAP-1's RCM business 
 
 HAP-1 is intended to cover shared RCM business operations, including their requests, results, and supporting access rules.
 This page describes its identity and access profile.
-The [business capabilities](../../docs/capabilities.md) describe the broader scope; the [claim-status contract](../claims/claim-status.md) defines the first business operation.
+The [business capabilities](/docs/capabilities) describe the broader scope; the [claim-status contract](/spec/claims/claim-status) defines the first business operation.
 
 For phone calls, an agent authenticates before calling a payer, then connects that registration to the incoming call.
 The payer checks the agent's permission to act for a provider before sharing protected information.
@@ -18,7 +18,7 @@ HTTP clients use standard API authentication. HAP adds no separate access creden
 
 For phone calls, the agent registers a session through an authenticated API before dialing.
 The payer selects the service and correlation method through its discovery policy.
-The [pre-call authentication profile](hap-1-voice.md) describes this exchange and both payer verification paths.
+The [pre-call authentication profile](/spec/identity/hap-1-voice) describes this exchange and both payer verification paths.
 Call identity, call correlation, and delegated data access are separate checks.
 
 ## Core requirements
@@ -79,7 +79,7 @@ URL allowlisting selects acceptable endpoints but does not authenticate an agent
 RN/JIP, watermark, and STIR/SHAKEN `origid` correlation need agreed telephony profiles before use.
 An integrated verifier can inspect an identity-only audio segment or supported signaling and report a result for the actual payer-side call.
 An unrestricted fork of protected call audio is outside this proposal's data boundary.
-The [voice profile](hap-1-voice.md) gives examples, failure rules, and the remaining interoperability decisions.
+The [voice profile](/spec/identity/hap-1-voice) gives examples, failure rules, and the remaining interoperability decisions.
 
 ## Keep authorization on the server
 
@@ -181,12 +181,12 @@ The registration proposal uses [OAuth client credentials](https://www.rfc-editor
 [proof of key possession](https://www.rfc-editor.org/rfc/rfc9449.html) on the API channel.
 These standard API mechanisms establish the authenticated client without another HAP credential exchange.
 
-The [voice proposal](hap-1-voice.md) adds pre-call registration and correlation under the same payer-controlled trust model.
-The [claim-status contract](../claims/claim-status.md) defines business requests and results independently of the identity version.
+The [voice proposal](/spec/identity/hap-1-voice) adds pre-call registration and correlation under the same payer-controlled trust model.
+The [claim-status contract](/spec/claims/claim-status) defines business requests and results independently of the identity version.
 
 ### HTTP requests
 
-The [HTTP access profile](hap-1-http.md) uses standard API authentication and payer-side authorization under `1.0-draft.5`.
+The [HTTP access profile](/spec/identity/hap-1-http) uses standard API authentication and payer-side authorization under `1.0-draft.5`.
 Its OAuth example uses an ordinary API access token, which can be an opaque reference to server-side state.
 HAP defines no custom token claims or separate grant exchange.
 The published A2A Agent Cards now select the draft 5 identity profile.

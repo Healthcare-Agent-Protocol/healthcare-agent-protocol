@@ -8,7 +8,7 @@ The agent starts the exchange. The payer selects the registration and verificati
 That service can be the payer itself, Pindrop, or another payer-approved service.
 These are proposed roles, not claims of vendor implementation or support.
 
-**Draft version:** `1.0-draft.5`. This voice profile follows the [core identity and access requirements](hap-1.md).
+**Draft version:** `1.0-draft.5`. This voice profile follows the [core identity and access requirements](/spec/identity/hap-1).
 The examples propose a contract for partner review; schemas and independent interoperability checks remain open.
 
 ## Separate identity, correlation, and access
@@ -216,7 +216,7 @@ The first claim-status pilot permits only claims matching the authorized billing
 A provider NPI supplied by the caller does not establish delegation.
 Missing, expired, revoked, or unverifiable authorization prevents protected work, including during an already verified call.
 
-The [HTTP access profile](hap-1-http.md) uses standard API authentication and the same payer-side authorization checks for digital requests.
+The [HTTP access profile](/spec/identity/hap-1-http) uses standard API authentication and the same payer-side authorization checks for digital requests.
 
 ## Complete the verified call
 

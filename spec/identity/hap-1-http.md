@@ -7,7 +7,7 @@ HAP-1 HTTP requests use standard API authentication and payer-side authorization
 The payer resolves the client's verified provider relationships and permissions from trusted records.
 HAP defines no separate access credential, token format, or credential issuance exchange.
 
-**Draft version:** `1.0-draft.5`, shared with the [identity walkthrough](hap-1.md) and [voice profile](hap-1-voice.md).
+**Draft version:** `1.0-draft.5`, shared with the [identity walkthrough](/spec/identity/hap-1) and [voice profile](/spec/identity/hap-1-voice).
 This is a proposal for partner review. Reference software and independent interoperability checks remain open.
 
 ## Use standard API authentication
@@ -53,7 +53,7 @@ The [claim-status Agent Card](https://raw.githubusercontent.com/Healthcare-Agent
 The discovery serialization for other integrations remains open.
 Public discovery information MUST contain no patient data, credentials, tokens, or delegation evidence.
 
-The [voice profile](hap-1-voice.md#discover-where-to-register) adds destination coverage, registration endpoints, and call-reference methods.
+The [voice profile](/spec/identity/hap-1-voice#discover-where-to-register) adds destination coverage, registration endpoints, and call-reference methods.
 A phone-call reference does not authenticate an HTTP request.
 
 ## Authenticate the client
@@ -80,7 +80,7 @@ Authorization: Bearer <api-access-token>
 Content-Type: application/json
 ```
 
-The [claim-status contract](../claims/claim-status.md#a2a-discovery-and-messages) supplies the A2A version and extension headers and the business request body.
+The [claim-status contract](/spec/claims/claim-status#a2a-discovery-and-messages) supplies the A2A version and extension headers and the business request body.
 This example illustrates authentication; it does not define another business endpoint.
 Tokens do not belong in discovery metadata, URLs, task identifiers, or business request fields.
 
@@ -149,7 +149,7 @@ Status checks contain no business request bodies or claim content.
 Operational logs omit credentials, tokens, protected payloads, and delegation evidence.
 Components handling business requests run within the payer's protected environment.
 
-[Payload encryption](hap-1.md#optional-payload-encryption) is optional and needs a separately agreed profile.
+[Payload encryption](/spec/identity/hap-1#optional-payload-encryption) is optional and needs a separately agreed profile.
 It does not replace HTTPS, client authentication, verified provider delegation, or payer access checks.
 
 ## Check an implementation
