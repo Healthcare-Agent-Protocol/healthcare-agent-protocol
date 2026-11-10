@@ -55,10 +55,7 @@ The payer checks trusted server-side authorization records or its existing provi
 API authentication, verified delegation, and record-access checks remain required.
 Per-number NAPTR, RN/JIP, watermark, and STIR/SHAKEN correlation remain proposed extensions requiring agreed profiles.
 
-## Inspiration and existing standards
-
-The [Universal Commerce Protocol](https://ucp.dev/specification/overview/) inspires the separation of services, capabilities, extensions, and transport bindings.
-HAP proposes healthcare business contracts with their own semantics.
+## Existing standards
 
 [A2A](https://a2a-protocol.org/latest/specification/) is a proposed transport for agent tasks and results.
 The protocol design also allows deployments without A2A.
@@ -66,7 +63,7 @@ The protocol design also allows deployments without A2A.
 X12 005010 transactions, FHIR resources, and payer APIs can support integrations behind these contracts.
 HAP does not change the submission, receipt, or adjudication semantics of those integrations.
 
-This project does not claim affiliation with UCP or A2A, industry endorsement, or production readiness.
+This project does not claim affiliation with A2A, industry endorsement, or production readiness.
 
 ## License
 

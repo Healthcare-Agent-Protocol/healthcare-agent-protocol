@@ -132,6 +132,5 @@ The [HAP-1 walkthrough](../spec/identity/hap-1.md#optional-payload-encryption) d
 
 ## Design references
 
-- [UCP overview](https://ucp.dev/specification/overview/): services, capabilities, versions, and extensions.
 - [A2A specification](https://a2a-protocol.org/latest/specification/): agent discovery, tasks, messages, and results.
 - [Identity and access profile](../spec/identity/hap-1.md): authentication and provider permissions supporting the business operations.

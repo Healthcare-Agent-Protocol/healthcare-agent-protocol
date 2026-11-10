@@ -11,7 +11,7 @@ The payer also needs to know who's calling and whether the agent can act for tha
 HAP gives both sides a shared way to handle that exchange.
 
 HAP-1 is intended to cover the RCM work itself: eligibility, authorizations, claims, payments, and appeals.
-Like the [Universal Commerce Protocol (UCP)](https://ucp.dev/specification/overview/), it brings business operations, the information exchanged, and the rules for completing the work into one protocol.
+It brings business operations, the information exchanged, and the rules for completing the work into one protocol.
 Identity and access checks support those workflows.
 
 <Note>
@@ -83,12 +83,11 @@ An external call verifier gets only the identity and call information needed for
 ## How HAP fits with other standards
 
 HAP defines healthcare business operations and their meaning, starting with claim-status requests and answers.
-UCP informs how the draft organizes business capabilities, discovery, versions, and extensions.
 [A2A](https://a2a-protocol.org/latest/specification/) is one proposed way for agents to exchange those requests and results.
 HAP-1 can also be used without A2A.
 
 Payer integrations can use existing X12 transactions, FHIR resources, and APIs.
-HAP is an independent project, with no claimed affiliation with UCP or A2A.
+HAP is an independent project.
 
 <Card title="Join the HAP-1 community" icon="comments" href="/community/contributing">
   Introduce yourself in GitHub Discussions, request an organization invitation, and help shape the draft.
