@@ -7,7 +7,7 @@ description: "Claim matching, adjudication, payment tracing, denial details, pen
 The caller selects the question groups it needs. The payer returns structured answers, explicit gaps, and source evidence.
 
 This contract defines a proposed business operation and an A2A 1.0 mapping.
-The [HAP-1 identity and access profile](https://superdial-2e67a944.mintlify.app/spec/identity/hap-1) requires authenticated identity, verified provider delegation, and payer-enforced record limits.
+The [HAP-1 identity and access profile](https://superdial-2e67a944.mintlify.app/spec/identity/hap-1) requires authenticated client identity, current permissions, and payer-enforced record limits.
 These checks use the authenticated client identity and trusted server-side authorization records.
 The A2A example on this page uses ordinary OAuth API authentication under the [API access rules](https://superdial-2e67a944.mintlify.app/spec/identity/hap-1#api-requests).
 
@@ -18,7 +18,7 @@ The A2A example on this page uses ordinary OAuth API authentication under the [A
 | Operation | `rcm.claims.status.get` |
 | Business version | `1.0-draft.1`, matched exactly |
 | Required scope | `claim.status.read` |
-| Initial record boundary | The requested claim belongs to the authorized billing-provider NPI |
+| Record access | Payer policy determines which claims the authenticated client can access |
 | Lookup unit | One claim submission; its service lines can have different outcomes |
 | A2A binding | Version `1.0`, JSON-RPC `SendMessage`, with JSON data parts |
 | Core identity version | HAP-1 `1.0-draft.1` |
@@ -63,8 +63,9 @@ The Agent Card advertises that version for both the business operation and its i
 
 ## Request and matching
 
-The request names the payer, authorized billing provider, target claim, and requested sections.
-The payer authenticates the client and verifies current provider delegation, permissions, and record limits before performing a protected lookup.
+The request names the payer, the claim's billing provider, target claim, and requested sections.
+The payer authenticates the client and checks its current permissions and record limits before performing a protected lookup.
+The billing-provider NPI identifies the claim for matching; it does not establish the client's permissions.
 A supplied NPI, member identifier, or claim number does not establish permission.
 
 Two selectors are supported:
@@ -107,7 +108,7 @@ Missing schema-required fields produce an A2A invalid-parameters error before ta
 
 ## Request example
 
-All examples use invented identifiers. The example NPI is a placeholder, not an enrolled provider credential.
+All examples use invented identifiers. The example NPI is a claim-matching placeholder.
 The following request asks what is pending and what to do next.
 
 ```json
@@ -360,11 +361,11 @@ https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main
 ```
 
 An Agent Card advertises the extension through `capabilities.extensions` and the operation through `skills`.
-The extension parameters name the operation version, request schema, response schema, supported sections, and initial record rule.
+The extension parameters name the operation version, request schema, response schema, and supported sections.
 The card also declares the selected transport, security scheme, and required `claim.status.read` scope.
 The [example Agent Card](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.1/a2a.agent-card.json) contains those declarations.
 The Agent Card selects HAP-1 version `1.0-draft.1` and declares ordinary OAuth API authentication through `securitySchemes` and `securityRequirements`.
-The payer resolves provider delegation and record permissions from trusted server-side records.
+The payer resolves the client's action and record permissions from trusted server-side records.
 The business schemas do not prescribe a token format or another credential exchange.
 This is an application profile under [A2A extension rules](https://a2a-protocol.org/latest/topics/extensions/), not a claim of A2A registration.
 
@@ -438,5 +439,5 @@ All committed examples are invented. Customer scripts and production records are
 
 `npm run contracts:check` validates the schemas and invented examples and checks cross-field failure cases.
 The checks cover provider and payer mismatches, unresolved evidence, misleading zero-dollar results, payment dates, ambiguous matches, and incomplete lines.
-They do not implement payer authentication, delegation verification, claim search, or access enforcement.
+They do not implement client authentication, permission checks, claim search, or access enforcement.
 Independent client/payer testing and a deployed verifier remain required before production use.

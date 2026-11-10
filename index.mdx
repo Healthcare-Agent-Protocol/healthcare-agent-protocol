@@ -8,7 +8,7 @@ Healthcare Agent Protocol (HAP) is a draft standard for agents that handle reven
 
 A billing team's agent needs to find out why a claim hasn't been paid.
 Both sides need to agree on what the agent is asking, which information it should send, and what an answer should include.
-The payer also needs to know who's calling and whether the agent can act for that provider.
+The payer also needs to know who's calling and what that agent is allowed to do.
 HAP gives both sides a shared way to handle that exchange.
 
 HAP-1 is intended to cover the RCM work itself: eligibility, authorizations, claims, payments, and appeals.
@@ -51,11 +51,11 @@ The [identity and access page](/spec/identity/hap-1#phone-calls) explains the fl
 ## The payer controls access
 
 Each payer chooses how agents authenticate and what they can access.
-Recognizing an agent's identity is one check; confirming its permission to act for a provider is another.
+The payer checks the agent's identity and permissions.
 The payer applies its own rules before sharing patient or claim information.
 
-The payer can keep the agent's identity and provider permissions in its own systems or an approved service.
-Both phone calls and API requests use the authenticated agent's identity and those provider permissions.
+The payer can keep the agent's identity and permissions in its own systems or an approved service.
+Both phone calls and API requests use the authenticated agent's identity and those permissions.
 The phone-call reference connects a call to its registration; it does not give the caller permission to read a claim.
 
 Patient and claim information stays between the agent and payer.
@@ -68,7 +68,7 @@ An external call verifier gets only the identity and call information needed for
     Explore the proposed scope, from eligibility and authorizations to claims, payments, and appeals.
   </Card>
   <Card title="Identity and access" icon="shield-halved" href="/spec/identity/hap-1">
-    See how agents authenticate through APIs and phone calls, and how payers check provider permissions.
+    See how agents authenticate through APIs and phone calls, and how payers check access.
   </Card>
 </CardGroup>
 

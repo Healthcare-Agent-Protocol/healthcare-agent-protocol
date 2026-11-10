@@ -17,7 +17,7 @@ The protocol and current business contract are pinned to `1.0-draft.1` during dr
 Read the [introduction](https://superdial-2e67a944.mintlify.app) and the two protocol pages:
 
 - [Business capabilities](https://superdial-2e67a944.mintlify.app/docs/capabilities) covers the proposed RCM operations.
-- [Identity and access](https://superdial-2e67a944.mintlify.app/spec/identity/hap-1) covers API authentication, phone verification, provider delegation, and payer access checks.
+- [Identity and access](https://superdial-2e67a944.mintlify.app/spec/identity/hap-1) covers API authentication, phone verification, client permissions, and payer access checks.
 
 The first operation is `rcm.claims.status.get`.
 Its detailed [claim-status contract](spec/claims/claim-status.md), [schemas](schemas/claims/1.0-draft.1), and [invented examples](examples/claims/1.0-draft.1) stay in this repository.
