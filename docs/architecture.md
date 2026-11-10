@@ -1,22 +1,46 @@
 ---
 title: "Architecture"
-description: "Pre-call authentication, server-side authorization, payer-controlled access, and shared business contracts."
+description: "RCM business operations, shared requests and results, capability discovery, and supporting identity and access rules."
 ---
 
-HAP requires authenticated identity and verified provider authority while each payer chooses its verification and access methods.
-HTTP clients use standard API authentication, and the payer resolves provider permissions from trusted records.
+HAP-1 is intended to define RCM business operations and the shared rules agents need to carry them out.
+Its scope includes eligibility, authorizations, claims, payments, and appeals, with common requests, results, business outcomes, and follow-up rules.
+Capability discovery, identity, access, and transport support those workflows.
+The first business contract covers claim status; the [capabilities](capabilities.md) describe the broader proposed scope.
 This document describes the proposed architecture. It does not define a wire contract.
 
 | Layer | Responsibility | Initial status |
 | --- | --- | --- |
+| Business operations | Define RCM actions, inputs, results, evidence, and business outcomes | Claim-status contract and schemas; other capabilities remain proposed |
 | Identity and access | Payers or approved services authenticate agents and maintain verified provider delegation and permissions | HAP-1 draft 5 |
 | Voice authentication | Agents register before dialing; the payer or its selected verifier correlates the incoming call | HAP-1 pre-call proposal |
 | Payer enforcement | The payer checks trusted authorization context, permitted operations, record limits, and current local blocks | Proposed access integration |
 | Payload privacy | An originating system can encrypt lookup data for the payer while agents forward an opaque payload | Optional pattern; detailed profile deferred |
-| Business contracts | Define operation inputs, results, evidence, and business outcomes | Claim-status schemas and examples; other operations remain proposed |
 | Discovery and versions | Payers publish authentication requirements, approved services, registration endpoints, destination policies, and versions | JSON card proposal; schemas and per-number DNS profile remain open |
 | Transport bindings | Map contracts to HTTP, A2A, and voice channels | Draft 5 HTTP and voice proposals; A2A examples use ordinary OAuth API access |
 | Integration adapters | Connect contracts to payer APIs, X12, FHIR, or assisted workflows | To be implemented |
+
+## Business contracts
+
+Each operation needs:
+
+- A stable identifier and version.
+- Defined inputs and results.
+- Required access scopes and record boundaries.
+- Service, provider, plan, location, and date limits where applicable.
+- Explicit business outcomes and missing-information responses.
+- Evidence with its source, observation time, and applicable dates.
+- Retry, idempotency, error, and receipt rules.
+
+A capability groups related operations.
+An implementation must state the exact operations it supports.
+Claim-status support does not imply support for claim submission or reprocessing.
+
+The [claim-status operation](../spec/claims/claim-status.md) defines the first draft business contract.
+It provides versioned request and response schemas, typed question groups, matching rules, evidence, partial answers, and A2A messages.
+Each business operation can have its own contract version within HAP-1.
+The identity and access profile also has its own version.
+Read-only access to payment, document, or review details remains limited to the same authorized claim.
 
 ## Identity and authority
 
@@ -66,27 +90,6 @@ This result establishes call identity. The payer resolves provider authority and
 Per-number NAPTR discovery and RN/JIP, watermark, or STIR/SHAKEN correlation require agreed extension profiles.
 The [pre-call proposal](../spec/identity/hap-1-voice.md) describes the exchange, data boundaries, and failure cases.
 
-## Business contracts
-
-Each operation needs:
-
-- A stable identifier and version.
-- Defined inputs and results.
-- Required access scopes and record boundaries.
-- Service, provider, plan, location, and date limits where applicable.
-- Explicit business outcomes and missing-information responses.
-- Evidence with its source, observation time, and applicable dates.
-- Retry, idempotency, error, and receipt rules.
-
-A capability groups related operations.
-An implementation must state the exact operations it supports.
-Claim-status support does not imply support for claim submission or reprocessing.
-
-The [claim-status operation](../spec/claims/claim-status.md) now defines the first draft business contract.
-It provides versioned request and response schemas, typed question groups, matching rules, evidence, partial answers, and A2A messages.
-Its business version changes independently of HAP-1 identity.
-Read-only access to payment, document, or review details remains limited to the same authorized claim.
-
 ## Tasks and business outcomes
 
 An agent task can finish while the underlying business process remains pending.
@@ -131,4 +134,4 @@ The [HAP-1 walkthrough](../spec/identity/hap-1.md#optional-payload-encryption) d
 
 - [UCP overview](https://ucp.dev/specification/overview/): services, capabilities, versions, and extensions.
 - [A2A specification](https://a2a-protocol.org/latest/specification/): agent discovery, tasks, messages, and results.
-- [HAP-1](../spec/identity/hap-1.md): proposed identity and access establishment.
+- [Identity and access profile](../spec/identity/hap-1.md): authentication and provider permissions supporting the business operations.

@@ -3,7 +3,7 @@ title: "Business capabilities"
 description: "Nine proposed business functions for healthcare revenue cycle workflows."
 ---
 
-These nine functions organize the initial RCM business scope.
+These nine functions organize HAP-1's proposed RCM business scope.
 The capability identifiers below are provisional design labels, not registered namespaces.
 The first operation has a separate draft contract and schemas.
 
@@ -26,7 +26,7 @@ Discovery must show that subset and its applicable limits.
 ## First operation
 
 [`rcm.claims.status.get`](../spec/claims/claim-status.md) reads one authorized claim under the HAP-1 scope `claim.status.read`.
-Its business version is `1.0-draft.2`, separate from the identity protocol version.
+Its business contract has version `1.0-draft.2`; the supporting identity and access profile has its own version.
 
 The caller selects status and supporting groups: amounts, payments, denials, pending requirements, service lines, submission, reviews, remittance, coordination, adjudication context, reprocessing, and follow-up.
 The response separates lookup outcome, authorization, claim business state, missing facts, source evidence, and observation time.

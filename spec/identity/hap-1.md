@@ -1,9 +1,13 @@
 ---
 title: "HAP-1 identity and access"
-description: "Authenticate an agent before it calls, connect the registration to the incoming call, and check access at the payer."
+description: "Identity and provider permissions supporting HAP-1's RCM business operations."
 ---
 
-HAP-1 lets an agent authenticate before calling a payer, then connect that registration to the incoming phone call.
+HAP-1 is intended to cover shared RCM business operations, including their requests, results, and supporting access rules.
+This page describes its identity and access profile.
+The [business capabilities](../../docs/capabilities.md) describe the broader scope; the [claim-status contract](../claims/claim-status.md) defines the first business operation.
+
+For phone calls, an agent authenticates before calling a payer, then connects that registration to the incoming call.
 The payer checks the agent's permission to act for a provider before sharing protected information.
 
 Identity and authorization information can stay with the payer or its approved service.

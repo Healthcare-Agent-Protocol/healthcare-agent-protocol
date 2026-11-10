@@ -2,7 +2,8 @@
 
 Healthcare Agent Protocol (HAP) is a draft protocol for agents that work with payers, providers, and revenue cycle management organizations.
 
-HAP aims to define shared business operations, structured inputs and results, capability discovery, and access controls.
+HAP-1 is intended to cover RCM business operations, structured inputs and results, capability discovery, and access controls.
+Its proposed scope includes eligibility, authorizations, claims, payments, and appeals.
 The same business contracts should support direct payer connections and connections through RCM organizations.
 
 **Status: early design draft.** This repository contains design documents and proposed authentication profiles.
@@ -16,7 +17,7 @@ It does not yet contain a complete protocol, executable client or payer service,
 | [Architecture](docs/architecture.md) | Protocol layers and authority boundaries |
 | [Business capabilities](docs/capabilities.md) | Nine proposed business functions |
 | [Claim status](spec/claims/claim-status.md) | Request and response schemas, follow-up question groups, and A2A 1.0 messages |
-| [HAP-1 identity and access](spec/identity/hap-1.md) | Plain-language walkthrough of the partner-review draft |
+| [HAP-1 identity and access](spec/identity/hap-1.md) | Identity and access profile supporting the RCM business operations |
 | [HAP-1 HTTP access](spec/identity/hap-1-http.md) | Standard API authentication and payer-side authorization for version `1.0-draft.5` |
 | [HAP-1 pre-call authentication](spec/identity/hap-1-voice.md) | Agent-initiated registration, payer-card discovery, and phone-call verification |
 | [Roadmap](docs/roadmap.md) | Work required for the first complete pilot |
@@ -61,7 +62,7 @@ The [Universal Commerce Protocol](https://ucp.dev/specification/overview/) inspi
 HAP proposes healthcare business contracts with their own semantics.
 
 [A2A](https://a2a-protocol.org/latest/specification/) is a proposed transport for agent tasks and results.
-The HAP-1 identity core also supports deployments without A2A.
+The protocol design also allows deployments without A2A.
 
 X12 005010 transactions, FHIR resources, and payer APIs can support integrations behind these contracts.
 HAP does not change the submission, receipt, or adjudication semantics of those integrations.

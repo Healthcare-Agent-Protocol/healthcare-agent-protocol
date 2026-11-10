@@ -61,7 +61,7 @@
     "primary": {
       "type": "button",
       "label": "Read HAP-1",
-      "href": "/spec/identity/hap-1"
+      "href": "/docs/architecture"
     }
   },
   "footer": {

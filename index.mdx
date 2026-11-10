@@ -1,16 +1,18 @@
 ---
 title: "Healthcare Agent Protocol"
-description: "A shared way for healthcare agents to identify themselves, work with payers, and get useful answers."
+description: "Shared RCM workflows, business operations, and access rules for healthcare agents and payer systems."
 ---
 
-Healthcare Agent Protocol (HAP) is a draft standard for agents that work with payers on behalf of healthcare providers.
+Healthcare Agent Protocol (HAP) is a draft standard for agents that handle revenue cycle management (RCM) work with payers.
 
 A billing team's agent needs to find out why a claim hasn't been paid.
-Before the payer can help, it needs to know who's calling and whether the agent can act for that provider.
-HAP gives both sides a shared way to handle those checks and exchange an answer the team can use.
+Both sides need to agree on what the agent is asking, which information it should send, and what an answer should include.
+The payer also needs to know who's calling and whether the agent can act for that provider.
+HAP gives both sides a shared way to handle that exchange.
 
-HAP-1 is the identity and access part of the protocol.
-It includes a proposal for authenticating agents before they call a payer.
+HAP-1 is intended to cover the RCM work itself: eligibility, authorizations, claims, payments, and appeals.
+Like the [Universal Commerce Protocol (UCP)](https://ucp.dev/specification/overview/), it brings business operations, the information exchanged, and the rules for completing the work into one protocol.
+Identity and access checks support those workflows.
 
 <Note>
   We're starting with a claim-status pilot. The design is open for feedback; the software and interoperability tests are still to come.
@@ -61,20 +63,20 @@ An external call verifier gets only the identity and call information needed for
 ## Explore the draft
 
 <CardGroup cols={2}>
-  <Card title="Follow the phone-call flow" icon="phone" href="/spec/identity/hap-1-voice">
-    See how an agent registers before dialing and how the payer verifies the call.
+  <Card title="See how the pieces fit" icon="layer-group" href="/docs/architecture">
+    Get an overview of the business operations and the shared rules that support them.
   </Card>
-  <Card title="Understand identity and access" icon="shield-halved" href="/spec/identity/hap-1">
-    Learn who checks the agent's identity and its permission to act for a provider.
+  <Card title="Explore RCM workflows" icon="list-check" href="/docs/capabilities">
+    See the proposed scope, from eligibility and authorizations to claims, payments, and appeals.
   </Card>
   <Card title="See a claim-status exchange" icon="file-invoice-dollar" href="/spec/claims/claim-status">
     Look through example requests and answers, from payments to missing information.
   </Card>
-  <Card title="See how the pieces fit" icon="layer-group" href="/docs/architecture">
-    Get an overview of the protocol and how it connects to payer systems.
+  <Card title="Understand identity and access" icon="shield-halved" href="/spec/identity/hap-1">
+    Learn who checks the agent's identity and its permission to act for a provider.
   </Card>
-  <Card title="Explore other workflows" icon="list-check" href="/docs/capabilities">
-    See the proposed scope beyond claim status, including eligibility, authorizations, and appeals.
+  <Card title="Follow the phone-call flow" icon="phone" href="/spec/identity/hap-1-voice">
+    See how an agent registers before dialing and how the payer verifies the call.
   </Card>
   <Card title="Help shape the pilot" icon="route" href="/docs/roadmap">
     See what we need to agree on and build for the first pilot.
@@ -83,8 +85,9 @@ An external call verifier gets only the identity and call information needed for
 
 ## How HAP fits with other standards
 
-HAP focuses on the healthcare work agents need to do.
-[UCP](https://ucp.dev/specification/overview/) informs how the draft organizes that work, while [A2A](https://a2a-protocol.org/latest/specification/) is one proposed way for agents to exchange requests and results.
+HAP defines healthcare business operations and their meaning, starting with claim-status requests and answers.
+UCP informs how the draft organizes business capabilities, discovery, versions, and extensions.
+[A2A](https://a2a-protocol.org/latest/specification/) is one proposed way for agents to exchange those requests and results.
 HAP-1 can also be used without A2A.
 
 Payer integrations can use existing X12 transactions, FHIR resources, and APIs.
