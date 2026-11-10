@@ -268,18 +268,30 @@ test('object key order does not change claim identity', () => {
   validPair(pair.request, pair.response);
 });
 
-test('published Agent Card selects the exact operation schemas and scope', () => {
-  const card = readJson(join(exampleDir, 'a2a.agent-card.json'));
-  const declaration = card.capabilities.extensions[0];
-  const request = readJson(join(exampleDir, 'a2a.send-message.json'));
-  assert.equal(declaration.uri, request.params.message.extensions[0]);
-  assert.equal(declaration.params.request_schema, readJson(join(schemaDir, 'request.schema.json')).$id);
-  assert.equal(declaration.params.response_schema, readJson(join(schemaDir, 'response.schema.json')).$id);
-  assert.deepEqual(declaration.params.supported_sections,
-    readJson(join(schemaDir, 'claim-status.schema.json')).$defs.Request.properties.requested_sections.items.enum);
-  assert.deepEqual(card.securityRequirements[0].schemes.hap_access.list, ['claim.status.read']);
-  assert.equal(card.supportedInterfaces[0].protocolVersion, '1.0');
-});
+for (const businessVersion of ['1.0-draft.1', version]) {
+  test(`Agent Card ${businessVersion} selects its business schemas and standard OAuth access`, () => {
+    const cardDir = join(root, 'examples/claims', businessVersion);
+    const cardSchemaDir = join(root, 'schemas/claims', businessVersion);
+    const card = readJson(join(cardDir, 'a2a.agent-card.json'));
+    const declaration = card.capabilities.extensions[0];
+    const request = readJson(join(cardDir, 'a2a.send-message.json'));
+    assert.equal(declaration.uri, request.params.message.extensions[0]);
+    assert.equal(declaration.params.operation_version, businessVersion);
+    assert.equal(declaration.params.request_schema, readJson(join(cardSchemaDir, 'request.schema.json')).$id);
+    assert.equal(declaration.params.response_schema, readJson(join(cardSchemaDir, 'response.schema.json')).$id);
+    assert.deepEqual(declaration.params.supported_sections,
+      readJson(join(cardSchemaDir, 'claim-status.schema.json')).$defs.Request.properties.requested_sections.items.enum);
+    assert.equal(declaration.params.hap_version, '1.0-draft.5');
+    assert.equal(Object.hasOwn(declaration.params, 'issuer_policy_url'), false);
+    assert.equal(declaration.params.resource, card.supportedInterfaces[0].url);
+    const requiredScopes = card.securityRequirements[0].schemes.payer_oauth.list;
+    const oauthFlow = card.securitySchemes.payer_oauth.oauth2SecurityScheme.flows.clientCredentials;
+    assert.deepEqual(requiredScopes, ['claim.status.read']);
+    for (const scope of requiredScopes) assert.equal(Object.hasOwn(oauthFlow.scopes, scope), true);
+    assert.equal(new URL(oauthFlow.tokenUrl).protocol, 'https:');
+    assert.equal(card.supportedInterfaces[0].protocolVersion, '1.0');
+  });
+}
 
 test('A2A input-required message contains a valid business clarification', () => {
   const task = readJson(join(exampleDir, 'a2a.input-required.json')).result.task;

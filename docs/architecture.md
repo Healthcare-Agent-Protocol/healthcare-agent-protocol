@@ -1,50 +1,54 @@
 ---
 title: "Architecture"
-description: "Required VDCs, payer-controlled issuer policy, optional intermediaries, and business contracts."
+description: "Pre-call authentication, server-side authorization, payer-controlled access, and shared business contracts."
 ---
 
-HAP requires verifiable delegated authorization while each payer chooses direct credential issuance, trusted intermediaries, or both.
+HAP requires authenticated identity and verified provider authority while each payer chooses its verification and access methods.
+HTTP clients use standard API authentication, and the payer resolves provider permissions from trusted records.
 This document describes the proposed architecture. It does not define a wire contract.
 
 | Layer | Responsibility | Initial status |
 | --- | --- | --- |
-| Identity and access | Payers or approved intermediaries verify identity and provider delegation, then issue scoped VDCs | HAP-1 draft 4 |
+| Identity and access | Payers or approved services authenticate agents and maintain verified provider delegation and permissions | HAP-1 draft 5 |
 | Voice authentication | Agents register before dialing; the payer or its selected verifier correlates the incoming call | HAP-1 pre-call proposal |
-| Payer enforcement | A standard verifier checks signed grants, permitted operations, record limits, and local blocks | Proposed gateway integration |
+| Payer enforcement | The payer checks trusted authorization context, permitted operations, record limits, and current local blocks | Proposed access integration |
 | Payload privacy | An originating system can encrypt lookup data for the payer while agents forward an opaque payload | Optional pattern; detailed profile deferred |
 | Business contracts | Define operation inputs, results, evidence, and business outcomes | Claim-status schemas and examples; other operations remain proposed |
-| Discovery and versions | Payers publish accepted issuers, issuance paths, access requirements, registration endpoints, destination policies, and versions | JSON card proposal; schemas and per-number DNS profile remain open |
-| Transport bindings | Map contracts to HTTP, A2A, and voice channels | Claim-status A2A 1.0 and HAP-1 HTTP proposals; protected voice operations need a credential mapping |
+| Discovery and versions | Payers publish authentication requirements, approved services, registration endpoints, destination policies, and versions | JSON card proposal; schemas and per-number DNS profile remain open |
+| Transport bindings | Map contracts to HTTP, A2A, and voice channels | Draft 5 HTTP and voice proposals; A2A examples use ordinary OAuth API access |
 | Integration adapters | Connect contracts to payer APIs, X12, FHIR, or assisted workflows | To be implemented |
 
 ## Identity and authority
 
-The VDC is mandatory for delegated RCM operations. A trusted intermediary is optional at the protocol level.
-Each payer publishes its accepted issuers and the policies under which they can grant access.
-This setup includes accepted provider delegation evidence, allowed operations, record rules, and revocation requirements.
+Each payer publishes its accepted authentication methods, approved services, and access policy.
+The policy includes accepted provider delegation evidence, allowed operations, record rules, and revocation requirements.
+The payer can run verification itself or use an approved intermediary.
 
 The client first gets the payer's authenticated discovery requirements.
-The payer can require a designated intermediary, allow direct payer issuance, or accept both paths.
-The protocol requires no named intermediary and does not require every payer to offer the direct path.
+The payer selects the registration service and any external service trusted to establish authorization.
+The protocol requires no named intermediary or external authorization service.
 
-The selected issuer verifies the organization and client, including its control of a cryptographic key.
-It verifies authority through any provider, RCM organization, and automation client relationship.
-It then issues short-lived VDCs under the payer-approved policy.
+The registration service authenticates the organization and client through the payer's accepted API authentication method.
+The payer or its approved authorization service verifies the provider, RCM organization, and automation client relationships needed for the requested work.
+Those records can stay on the server and be associated with the authenticated client and call.
 
-With intermediary issuance, the intermediary signs the VDC and the payer accepts it without issuing a replacement.
-With direct issuance, the payer validates the bot's accepted authentication payload and provider delegation evidence, then issues the VDC itself.
+An identity-only registration does not imply provider delegation.
+The payer can check that delegation through its existing workflow before protected work.
 Knowledge of patient or claim facts alone does not establish that delegation.
 
-The payer checks VDCs through a standard verifier component in both paths.
-The component checks credential validity, operation scope, record boundaries, and local blocks.
-It runs within the payer's protected environment if it handles business requests.
+The payer checks current authorization before each protected operation.
+It rejects missing, expired, revoked, or unverifiable authority and enforces operation scope, record boundaries, and local blocks.
+Any component handling business requests runs within the payer's protected environment.
 
 The first pilot limits record access to claims matching the authorized billing-provider NPI.
 An NPI supplied by the client does not establish delegation or override the stored claim relationship.
-The issuer verifies delegation before granting access; the payer checks the record relationship before releasing data.
+The payer checks verified delegation and the stored claim relationship before releasing data.
 
-Issuer acceptance, provider delegation, and resource access remain separate checks.
-An accepted VDC never overrides the payer's local access policy.
+Service trust, provider delegation, and resource access remain separate checks.
+An authenticated identity never overrides the payer's local access policy.
+
+The [HTTP access profile](../spec/identity/hap-1-http.md) uses standard API authentication and the same payer-side authorization checks.
+Its OAuth example permits opaque access tokens and adds no custom token fields or separate HAP credential exchange.
 
 ## Agent-initiated phone calls
 
@@ -57,7 +61,7 @@ It carries the correlation into the phone call through an agreed method such as 
 The payer can call a verification interface or get an authenticated result from its existing verifier integration.
 An integrated verifier can observe an approved identity-only audio segment or supported signaling metadata.
 The result binds the authenticated client and registration to the actual payer-side call.
-This result does not grant record access; the VDC and payer authorization rules remain separate.
+This result establishes call identity. The payer resolves provider authority and permissions from trusted records before releasing protected information.
 
 Per-number NAPTR discovery and RN/JIP, watermark, or STIR/SHAKEN correlation require agreed extension profiles.
 The [pre-call proposal](../spec/identity/hap-1-voice.md) describes the exchange, data boundaries, and failure cases.
@@ -95,10 +99,10 @@ The business contract must define durable references separately from transport t
 ## Data boundaries
 
 Claim requests, claim responses, patient identifiers, and clinical documents pass directly between the client and payer.
-When used, an intermediary receives identity information, provider delegation evidence, requested permissions, and grant metadata.
+When used, an intermediary receives identity information, approved provider delegation evidence, permissions, and verification metadata.
 Intermediary enrollment and delegation evidence exclude patient and claim details.
 Direct payer verification evidence stays with the originating system, client, and payer.
-External token-status checks carry no business request bodies or claim content.
+External verification and authorization-status checks carry no business request bodies or claim content.
 Voice registration carries identity and call metadata only; an external identity feed excludes protected conversation content.
 An integration must state whether evidence comes from the payer, an intermediary observation, or a derived result.
 
@@ -112,16 +116,16 @@ The core flow works with or without it.
 
 The practice system can encrypt lookup identifiers using the payer's authentic public encryption key.
 The RCM bot can then forward the payload without reading those identifiers.
-The payer validates the signed authorization, decrypts the payload, checks record access, and returns only the permitted result.
+The payer authenticates the request, verifies authorization, decrypts the payload, checks record access, and returns only the permitted result.
 Routing and delegation checks must not require the bot to read the encrypted identifiers.
 
-The signed delegation binds the request to the payload, bot key, intended payer, action, and expiry.
-Encryption does not replace the access credential or establish authority by itself.
+The encryption profile must bind the payload to the authenticated client, intended payer, permitted action, and current authorization context.
+Encryption does not replace authentication or establish authority by itself.
 Results, visible metadata, errors, and receipts also need data minimization to preserve the intended privacy boundary.
 
 V0 describes this pattern without requiring an encryption implementation.
 A later profile will define the envelope, key discovery, rotation, algorithms, negotiation, request binding, and failure behavior.
-The [HAP-1 walkthrough](../spec/identity/hap-1.md#optional-payload-encryption) includes the participant diagram.
+The [HAP-1 walkthrough](../spec/identity/hap-1.md#optional-payload-encryption) describes the core privacy pattern.
 
 ## Design references
 

@@ -1,76 +1,95 @@
 ---
 title: "Healthcare Agent Protocol"
-description: "Shared business contracts for agents working with payers, providers, and revenue cycle management organizations."
+description: "A shared way for healthcare agents to identify themselves, work with payers, and get useful answers."
 ---
 
-Healthcare Agent Protocol (HAP) defines a proposed way for healthcare agents to discover operations, establish access, and exchange structured results.
+Healthcare Agent Protocol (HAP) is a draft standard for agents that work with payers on behalf of healthcare providers.
 
-<Warning>
-  HAP is an early design draft. The protocol, reference implementation, and conformance suite are not complete.
-</Warning>
+A billing team's agent needs to find out why a claim hasn't been paid.
+Before the payer can help, it needs to know who's calling and whether the agent can act for that provider.
+HAP gives both sides a shared way to handle those checks and exchange an answer the team can use.
 
-## Start with a business operation
+HAP-1 is the identity and access part of the protocol.
+It includes a proposal for authenticating agents before they call a payer.
 
-A provider or RCM agent should be able to request claim status using a shared contract.
-The agent first discovers the payer's credential requirements.
-The payer or an approved intermediary verifies identity and provider delegation, then issues a verifiable digital credential (VDC).
-The payer validates that VDC and enforces its record limits.
-The result should state the claim status, its source, and when the payer observed it.
+<Note>
+  We're starting with a claim-status pilot. The design is open for feedback; the software and interoperability tests are still to come.
+</Note>
 
-The first proposed pilot supports claim-status reading under the scope `claim.status.read`.
-The [claim-status operation](/spec/claims/claim-status) defines request and response schemas and its A2A 1.0 messages.
-It covers payment tracing, denial details, pending requirements, service lines, claim-bound adjudication context, existing reviews, remittance, and follow-up references.
+## Start with a claim-status check
+
+Has the claim been paid? If it was denied, why? If it's still pending, what's missing?
+
+These are the questions the first pilot aims to answer.
+An agent should be able to ask about a claim and get its status, supporting details, and any next steps the payer provides.
+The answer should also say where the information came from and when it was checked.
+
+A successful lookup can still tell you that a claim is pending.
+The lookup is finished; the payer's work on the claim may still be underway.
+
+The [claim-status reference](/spec/claims/claim-status) describes the proposed request and response format, with examples for payments, denials, missing information, and follow-up.
+
+## How a phone call would work
+
+The proposed phone flow starts before the agent dials:
+
+1. **Find out where to register.** The payer publishes which service handles authentication for the number the agent plans to call.
+2. **Register the call.** The agent authenticates through an API. The service returns a short-lived call reference and instructions for using it.
+3. **Place the call.** The agent sends the agreed reference using touch-tone digits (DTMF), spoken digits, or another supported method.
+4. **Match the incoming call.** The payer or its chosen verifier connects that call to the authenticated registration.
+
+The reference lets the payer connect the caller to a registration it already trusts.
+The payer then checks whether that agent has permission to access the requested information.
+
+The payer can run verification itself or choose a partner.
+RN/JIP signaling and audio watermarks are also under consideration, with technical details still to agree.
+The [phone authentication proposal](/spec/identity/hap-1-voice) explains the flow and the open questions.
+
+## The payer controls access
+
+Each payer chooses how agents authenticate and what they can access.
+Recognizing an agent's identity is one check; confirming its permission to act for a provider is another.
+The payer applies its own rules before sharing patient or claim information.
+
+The payer can keep the agent's identity and provider permissions in its own systems or an approved service.
+Both phone calls and API requests use the authenticated agent's identity and those provider permissions.
+The phone-call reference connects a call to its registration; it does not give the caller permission to read a claim.
+
+Patient and claim information stays between the agent and payer.
+An external call verifier gets only the identity and call information needed for verification.
+
+## Explore the draft
 
 <CardGroup cols={2}>
-  <Card title="Understand the architecture" icon="layer-group" href="/docs/architecture">
-    See how identity, access, business contracts, and transport fit together.
+  <Card title="Follow the phone-call flow" icon="phone" href="/spec/identity/hap-1-voice">
+    See how an agent registers before dialing and how the payer verifies the call.
   </Card>
-  <Card title="Explore business capabilities" icon="list-check" href="/docs/capabilities">
-    Review nine proposed functions for revenue cycle workflows.
+  <Card title="Understand identity and access" icon="shield-halved" href="/spec/identity/hap-1">
+    Learn who checks the agent's identity and its permission to act for a provider.
   </Card>
-  <Card title="Read the claim-status contract" icon="file-invoice-dollar" href="/spec/claims/claim-status">
-    Review the schema, matching rules, structured answers, and A2A message examples.
+  <Card title="See a claim-status exchange" icon="file-invoice-dollar" href="/spec/claims/claim-status">
+    Look through example requests and answers, from payments to missing information.
   </Card>
-  <Card title="Read HAP-1" icon="shield-halved" href="/spec/identity/hap-1">
-    Review identity, pre-call authentication, and delegated access.
+  <Card title="See how the pieces fit" icon="layer-group" href="/docs/architecture">
+    Get an overview of the protocol and how it connects to payer systems.
   </Card>
-  <Card title="Review the pilot roadmap" icon="route" href="/docs/roadmap">
-    See the decisions and implementation work required for the first pilot.
+  <Card title="Explore other workflows" icon="list-check" href="/docs/capabilities">
+    See the proposed scope beyond claim status, including eligibility, authorizations, and appeals.
+  </Card>
+  <Card title="Help shape the pilot" icon="route" href="/docs/roadmap">
+    See what we need to agree on and build for the first pilot.
   </Card>
 </CardGroup>
 
-## Authenticate before a phone call
+## How HAP fits with other standards
 
-The agent reads a payer-published JSON card or authenticated configuration to discover where to register.
-It makes an authenticated API request before dialing and gets a call reference plus correlation instructions.
-The payer can host that service or select Pindrop or another verifier; these are proposed roles, not claims of vendor support.
-The agent carries the correlation through a negotiated method such as DTMF or spoken digits.
-The payer verifies it through a lookup or gets an authenticated result through its verifier integration.
+HAP focuses on the healthcare work agents need to do.
+[UCP](https://ucp.dev/specification/overview/) informs how the draft organizes that work, while [A2A](https://a2a-protocol.org/latest/specification/) is one proposed way for agents to exchange requests and results.
+HAP-1 can also be used without A2A.
 
-A positive call result establishes identity and call correlation. Protected access still needs the accepted VDC and payer authorization.
-Read the [pre-call authentication proposal](/spec/identity/hap-1-voice) for discovery, registration, and both verification paths.
-
-## Keep clear boundaries
-
-- A payer-accepted VDC is required for every protected delegated RCM operation.
-- Trusted intermediaries are optional at the protocol level. Each payer can require one, issue VDCs directly, or accept both paths.
-- Payer-led discovery tells the client which issuers and acquisition methods are accepted.
-- Voice discovery selects the registration service and call-correlation methods; a call reference does not replace an access VDC.
-- An approved intermediary issues its VDC directly; the payer does not issue a replacement for that path.
-- The payer enforces VDC scope, key binding, record permissions, and local access policy in both paths.
-- Claim data passes directly between client and payer.
-- Payload encryption is an optional privacy pattern. Transport security and verified delegation remain required.
-- A completed lookup can report a claim that remains pending.
-
-## Build on existing standards
-
-[UCP](https://ucp.dev/specification/overview/) inspires the organization of capabilities, versions, extensions, and transport bindings.
-[A2A](https://a2a-protocol.org/latest/specification/) is a proposed transport for agent tasks and results.
-The HAP-1 identity core also supports deployments without A2A.
-
-X12 005010 transactions, FHIR resources, and payer APIs can support integrations behind the business contracts.
-This project does not claim affiliation with UCP or A2A, industry endorsement, or production readiness.
+Payer integrations can use existing X12 transactions, FHIR resources, and APIs.
+HAP is an independent project, with no claimed affiliation with UCP or A2A.
 
 <Card title="Contribute to the draft" icon="code-pull-request" href="/community/contributing">
-  Propose a focused change with explicit behavior, authority boundaries, and conformance cases.
+  Help us make the draft clearer, suggest a change, or work through what a pilot would need.
 </Card>

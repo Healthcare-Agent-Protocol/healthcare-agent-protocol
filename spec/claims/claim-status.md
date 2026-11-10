@@ -7,7 +7,9 @@ description: "Claim matching, adjudication, payment tracing, denial details, pen
 The caller selects the question groups it needs. The payer returns structured answers, explicit gaps, and source evidence.
 
 This contract defines a proposed business operation and an A2A 1.0 mapping.
-The [HAP-1 access profile](../identity/hap-1-http.md) supplies authentication, verified provider delegation, and record-access rules.
+The [HAP-1 core](../identity/hap-1.md) requires authenticated identity, verified provider delegation, and payer-enforced record limits.
+These checks use the authenticated client identity and trusted server-side authorization records.
+The A2A example on this page uses ordinary OAuth API authentication under the [HTTP access profile](../identity/hap-1-http.md).
 
 ## V1 draft 2
 
@@ -19,7 +21,8 @@ The [HAP-1 access profile](../identity/hap-1-http.md) supplies authentication, v
 | Initial record boundary | The requested claim belongs to the authorized billing-provider NPI |
 | Lookup unit | One claim submission; its service lines can have different outcomes |
 | A2A binding | Version `1.0`, JSON-RPC `SendMessage`, with JSON data parts |
-| Identity version | HAP-1 `1.0-draft.4`; this operation has its own version |
+| Core identity version | HAP-1 `1.0-draft.5`; this operation has its own version |
+| Example API authentication | OAuth client credentials with an ordinary bearer access token |
 | Schema dialect | JSON Schema Draft 2020-12 |
 
 The versioned [request schema](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/schemas/claims/1.0-draft.2/request.schema.json),
@@ -61,14 +64,15 @@ It also distinguishes a claims administrator from an actual claim-forwarding eve
 ## V1 draft 1
 
 The [draft 1 schemas](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/tree/main/schemas/claims/1.0-draft.1) and
-[examples](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/tree/main/examples/claims/1.0-draft.1) remain unchanged.
+[business examples](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/tree/main/examples/claims/1.0-draft.1) remain unchanged.
 They do not accept draft 2's new sections or fields.
 Clients select the exact advertised business version rather than sending new fields under the earlier version.
+Both business versions' Agent Cards now advertise HAP-1 identity version `1.0-draft.5` and ordinary OAuth API authentication.
 
 ## Request and matching
 
 The request names the payer, authorized billing provider, target claim, and requested sections.
-The payer verifies the VDC and provider delegation before performing a protected lookup.
+The payer authenticates the client and verifies current provider delegation, permissions, and record limits before performing a protected lookup.
 A supplied NPI, member identifier, or claim number does not establish permission.
 
 Two selectors are supported:
@@ -367,18 +371,20 @@ An Agent Card advertises the extension through `capabilities.extensions` and the
 The extension parameters name the operation version, request schema, response schema, supported sections, and initial record rule.
 The card also declares the selected transport, security scheme, and required `claim.status.read` scope.
 The [example Agent Card](https://raw.githubusercontent.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/main/examples/claims/1.0-draft.2/a2a.agent-card.json) contains those declarations.
+Both published business versions' Agent Cards select HAP-1 identity version `1.0-draft.5`.
+They declare ordinary OAuth API authentication through `securitySchemes` and `securityRequirements`.
+The payer resolves provider delegation and record permissions from trusted server-side records.
+The business schemas do not prescribe a token format or another credential exchange.
 This is an application profile under [A2A extension rules](https://a2a-protocol.org/latest/topics/extensions/), not a claim of A2A registration.
 
 The client activates that exact extension through `A2A-Extensions` and sends `A2A-Version: 1.0`.
-The HAP access VDC and DPoP proof accompany the actual A2A HTTP request.
-The DPoP proof binds to its HTTP method and URL.
+The ordinary OAuth access token accompanies the actual A2A HTTP request through its authorization header.
 Tokens and protected claim data do not belong in discovery metadata or identifiers.
 
 ```http
 POST /a2a HTTP/1.1
 Host: payer.example
-Authorization: DPoP <accepted-issuer-signed-access-vdc>
-DPoP: <proof-for-this-request-and-token>
+Authorization: Bearer <api-access-token>
 A2A-Version: 1.0
 A2A-Extensions: https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/blob/main/spec/claims/claim-status.md#v1-draft-2
 Content-Type: application/json

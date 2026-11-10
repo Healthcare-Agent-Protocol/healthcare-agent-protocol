@@ -8,7 +8,7 @@ The agent starts the exchange. The payer selects the registration and verificati
 That service can be the payer itself, Pindrop, or another payer-approved service.
 These are proposed roles, not claims of vendor implementation or support.
 
-**Draft version:** `1.0-draft.4`. This voice profile supplements the [HTTP access profile](hap-1-http.md).
+**Draft version:** `1.0-draft.5`. This voice profile follows the [core identity and access requirements](hap-1.md).
 The examples propose a contract for partner review; schemas and independent interoperability checks remain open.
 
 ## Separate identity, correlation, and access
@@ -17,12 +17,13 @@ The examples propose a contract for partner review; schemas and independent inte
 | --- | --- |
 | API authentication | The registration service verifies the organization and client making the request. |
 | Call correlation | The verifier connects an observed phone call to that authenticated registration. |
-| Delegated access | The payer checks provider delegation, an accepted VDC, permitted actions, record limits, and local policy before protected work. |
+| Delegated access | The payer checks trusted authorization records for provider delegation, permitted actions, record limits, and current local policy before protected work. |
 
-A call reference is not an access VDC. A positive call result does not grant access to patient or claim data.
-The existing direct and intermediary VDC issuance paths remain available.
-A registration service needs separate payer approval before it can also act as a VDC issuer.
-The voice mapping for VDC presentation and continued credential control still needs an agreed profile before protected operations.
+A positive call result identifies the caller. The payer still needs verified provider authority before sharing patient or claim information.
+The payer or its approved authorization service can keep identity, delegation, and permissions on the server.
+The phone call carries a short-lived reference to the authenticated registration.
+A call verifier needs separate payer approval before its result can establish delegation or permissions.
+If it reports identity only, the payer resolves authorization through its own access workflow.
 
 ## Discover where to register
 
@@ -40,7 +41,7 @@ The payer's voice discovery information supplies:
 
 - The accepted HAP version, payer identity, registration URL, and verifier identity.
 - The destinations covered by that policy, including explicit phone numbers or a configured destination group.
-- Client authentication requirements, credential acquisition details, and supported correlation methods in payer preference order.
+- Client authentication requirements, API credential setup, and supported correlation methods in payer preference order.
 - How the payer gets verification results, plus discovery refresh and call-reference expiry rules.
 
 The following is an illustrative HAP metadata fragment for an agreed card extension or configured payer profile.
@@ -49,7 +50,7 @@ The `scope` value is proposed by HAP, not an existing OAuth registration.
 
 ```json
 {
-  "hap_version": "1.0-draft.4",
+  "hap_version": "1.0-draft.5",
   "payer_id": "payer-example",
   "voice_registration": {
     "endpoint": "https://verifier.example/hap/call-refs",
@@ -93,7 +94,8 @@ The example uses that approach and [DPoP](https://www.rfc-editor.org/rfc/rfc9449
 Other authentication methods need an advertised, agreed profile; an arbitrary self-published key or URL is insufficient.
 
 Registration credentials permit call registration only. They do not authorize protected RCM operations.
-Discovery and call registration do not require an existing HAP access VDC.
+Identity and authorization are resolved through trusted server-side records without another HAP credential exchange.
+The payer still verifies provider delegation and the requested action before protected work.
 
 ## Register once before dialing
 
@@ -113,7 +115,7 @@ Idempotency-Key: example-registration-attempt-1
 
 ```json
 {
-  "hap_version": "1.0-draft.4",
+  "hap_version": "1.0-draft.5",
   "payer_id": "payer-example",
   "destination": "+12025550123",
   "client_call_id": "example-outbound-attempt-1",
@@ -129,7 +131,7 @@ A proposed successful response uses `201 Created` and `Cache-Control: no-store`:
 
 ```json
 {
-  "hap_version": "1.0-draft.4",
+  "hap_version": "1.0-draft.5",
   "call_ref": "example-call-ref-1",
   "status": "registered",
   "expires_in": 300,
@@ -144,7 +146,8 @@ A proposed successful response uses `201 Created` and `Cache-Control: no-store`:
 `registered` means the API accepted a future call. It does not mean the phone call has been verified.
 The reference binds the authenticated client, payer, destination, outbound attempt, chosen method, and expiry.
 The service stores that binding; the phone token does not need to encode those attributes.
-The proposed maximum lifetime is 300 seconds for the first successful correlation, independent of VDC expiry.
+The proposed maximum lifetime is 300 seconds for the first successful correlation.
+This lifetime does not extend provider delegation or other authorization limits.
 
 A retry with the same client, idempotency key, and request returns the same registration while it remains valid.
 Changing the request under that key produces a conflict.
@@ -198,6 +201,25 @@ The payer accepts results only from its configured verifier and checks that the 
 Pending registration, successful audio detection alone, or a result naming a different call is insufficient.
 If the integration cannot securely establish that binding, it leaves the call unverified.
 
+## Resolve access from trusted records
+
+The payer uses the verified client identity to find current provider delegation and permissions in its own records or an approved authorization service.
+Those checks can happen during registration or through the payer's access workflow after the call is verified.
+The registration and short phone token do not need to contain that authorization information.
+
+If the verifier also reports delegation or permissions, the payer must approve it to make those assertions.
+The integration must define how that context binds to the verified client and current call, including its validity and revocation rules.
+An identity-only verification result does not imply provider authority.
+
+Before each protected operation, the payer checks the requested action, authorized provider, record relationship, and current local blocks.
+The first claim-status pilot permits only claims matching the authorized billing-provider NPI.
+A provider NPI supplied by the caller does not establish delegation.
+Missing, expired, revoked, or unverifiable authorization prevents protected work, including during an already verified call.
+
+The [HTTP access profile](hap-1-http.md) uses standard API authentication and the same payer-side authorization checks for digital requests.
+
+## Complete the verified call
+
 ```mermaid
 sequenceDiagram
     participant A as SuperDial agent
@@ -232,7 +254,11 @@ Use invented destinations, client identities, and tokens.
 - Reject untrusted discovery, unknown keys, blocked clients, stale policy, and verifier self-advertisements without payer approval.
 - Reject guessed tokens, token reuse on another call, mismatched methods, and results delivered for a different call.
 - Keep calls unverified when audio or signaling detection fails or the result channel is unavailable.
-- Confirm a positive identity result cannot replace a VDC, provider delegation, or the payer's record-access checks.
+- Complete an authorized lookup using the authenticated client identity and trusted server-side delegation and permissions.
+- Confirm an identity-only result cannot bypass provider delegation, record limits, revocation, or local payer blocks.
+- Reject authorization information from a verifier approved only to establish identity.
+- Stop protected work if authority expires, is revoked, or cannot be checked during an already verified call.
 - Confirm registration traffic, logs, and external media feeds contain no protected call or business content.
 
+The draft 5 registration examples select the new identity version explicitly.
 The [roadmap](../../docs/roadmap.md) tracks discovery serialization, call-binding assurance, media controls, carrier profiles, and conformance work.

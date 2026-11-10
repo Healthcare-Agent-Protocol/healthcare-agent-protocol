@@ -17,7 +17,7 @@ It does not yet contain a complete protocol, executable client or payer service,
 | [Business capabilities](docs/capabilities.md) | Nine proposed business functions |
 | [Claim status](spec/claims/claim-status.md) | Request and response schemas, follow-up question groups, and A2A 1.0 messages |
 | [HAP-1 identity and access](spec/identity/hap-1.md) | Plain-language walkthrough of the partner-review draft |
-| [HAP-1 HTTP reference](spec/identity/hap-1-http.md) | Payer-led discovery and both VDC issuance paths for version `1.0-draft.4` |
+| [HAP-1 HTTP access](spec/identity/hap-1-http.md) | Standard API authentication and payer-side authorization for version `1.0-draft.5` |
 | [HAP-1 pre-call authentication](spec/identity/hap-1-voice.md) | Agent-initiated registration, payer-card discovery, and phone-call verification |
 | [Roadmap](docs/roadmap.md) | Work required for the first complete pilot |
 | [Contributing](CONTRIBUTING.md) | How to propose changes |
@@ -28,17 +28,17 @@ It does not yet contain a complete protocol, executable client or payer service,
 The first proposed pilot is authorized claim-status access.
 The [claim-status contract](spec/claims/claim-status.md) defines operation `rcm.claims.status.get`, business version `1.0-draft.2`.
 
-1. The client discovers the payer's accepted issuers and credential acquisition requirements.
-2. The client selects direct payer issuance or an intermediary path permitted by that payer.
-3. The selected issuer verifies identity and provider delegation, then issues a scoped verifiable digital credential (VDC).
-4. The client requests claim status and selected follow-up sections using the VDC and key proof.
-5. The payer's verifier checks credential validity, operation scope, record limits, and local blocks.
+1. The client discovers the payer's registration service, accepted authentication, and destination policy.
+2. The client authenticates through an API and registers the upcoming call.
+3. The service stores the authenticated registration and returns a short-lived call reference.
+4. The client calls the payer and sends the reference through the agreed method.
+5. The payer verifies the call and checks provider delegation, permitted actions, record limits, and current local blocks.
 6. The payer returns the authorized result with its source and observation time.
 
-**VDCs are required; trusted intermediaries are optional at the protocol level.**
-Each payer can require a designated intermediary, issue VDCs directly, or accept both paths.
-An intermediary issues the VDC for its path; the payer accepts it without minting a replacement.
-In the direct path, the payer validates accepted authentication and delegation evidence before issuing the VDC itself.
+**HAP-1 draft 5 uses ordinary API authentication and payer-side authorization.**
+Identity, provider delegation, and permissions can stay with the payer or its approved service.
+Each payer can run verification directly or select an approved partner.
+HTTP clients use the payer's published security scheme, such as OAuth, without another HAP credential exchange.
 Claim data passes directly between client and payer. Payload encryption is an optional privacy pattern.
 
 ## Pre-call authentication
@@ -51,7 +51,8 @@ The endpoint can belong to the payer, Pindrop, or another approved service; HAP 
 These are proposed roles, not claims of vendor support.
 
 The call reference establishes call correlation, not permission to access patient or claim data.
-The required VDC and payer authorization checks still apply before protected work.
+The payer checks trusted server-side authorization records or its existing provider-verification workflow before protected work.
+API authentication, verified delegation, and record-access checks remain required.
 Per-number NAPTR, RN/JIP, watermark, and STIR/SHAKEN correlation remain proposed extensions requiring agreed profiles.
 
 ## Inspiration and existing standards

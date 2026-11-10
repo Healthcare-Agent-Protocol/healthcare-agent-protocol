@@ -37,16 +37,15 @@
             "reviews"
           ],
           "record_rule": "billing_provider_claims",
-          "hap_version": "1.0-draft.4",
-          "resource": "https://payer.example/rcm",
-          "issuer_policy_url": "https://payer.example/hap/issuer-policy",
+          "hap_version": "1.0-draft.5",
+          "resource": "https://payer.example/a2a",
           "retry_window_seconds": 600
         }
       }
     ]
   },
   "securitySchemes": {
-    "hap_access": {
+    "payer_oauth": {
       "oauth2SecurityScheme": {
         "flows": {
           "clientCredentials": {
@@ -62,7 +61,7 @@
   "securityRequirements": [
     {
       "schemes": {
-        "hap_access": {
+        "payer_oauth": {
           "list": [
             "claim.status.read"
           ]
