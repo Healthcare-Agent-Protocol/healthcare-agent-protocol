@@ -44,7 +44,6 @@
       {
         "group": "Project",
         "pages": [
-          "docs/roadmap",
           "community/contributing",
           "community/security"
         ]

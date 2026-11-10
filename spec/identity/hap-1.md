@@ -174,7 +174,6 @@ Key discovery, rotation, algorithm choices, capability negotiation, payload bind
 
 This section describes a privacy pattern for v0.
 It adds no encryption fields or requirements to call registration.
-The [roadmap](../../docs/roadmap.md#optional-privacy-profile-after-v0) lists the deferred profile work.
 
 ## Standards and implementation
 

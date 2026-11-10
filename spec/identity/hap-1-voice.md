@@ -261,4 +261,3 @@ Use invented destinations, client identities, and tokens.
 - Confirm registration traffic, logs, and external media feeds contain no protected call or business content.
 
 The draft 5 registration examples select the new identity version explicitly.
-The [roadmap](../../docs/roadmap.md) tracks discovery serialization, call-binding assurance, media controls, carrier profiles, and conformance work.

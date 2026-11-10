@@ -168,4 +168,3 @@ Use invented data and test credentials.
 
 Draft 5 replaces the earlier HAP-specific access-grant exchange.
 Clients select the new identity version explicitly; business request and response schemas keep their independent versions.
-The [pilot roadmap](../../docs/roadmap.md) tracks the remaining implementation and interoperability work.
