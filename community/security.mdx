@@ -1,59 +1,19 @@
 ---
 title: "Security"
-description: "Data boundaries and private vulnerability reporting."
+description: "Use invented examples and report vulnerabilities privately."
 ---
 
+HAP-1 is a working draft with no production release.
 
-This repository contains early protocol drafts. It has no production release or deployed service.
+## Use invented examples
 
-## Data handling
+Use invented data in examples, tests, and GitHub conversations.
+Never post patient or claim data, recordings, transcripts, credentials, tokens, or private keys.
 
-Use invented data in examples, tests, discussions, issues, and pull requests.
-Never submit patient data, claim records from production, credentials, tokens, private keys, recordings, or transcripts.
+For the protocol's access and privacy rules, see [identity and access](/spec/identity/hap-1) and [phone verification](/spec/identity/hap-1-voice).
 
-HAP-1 draft 5 uses standard API authentication and verified provider authority.
-Each payer publishes its accepted authentication methods and approved verification services.
-The payer or its approved authorization service maintains verified provider delegation and permissions.
-An authentication payload or knowledge of patient details alone does not establish provider-to-bot authority.
-The payer checks current authority, permitted actions, record limits, and local blocks before each protected operation.
-When used, an intermediary handles provider delegation evidence and access metadata, without patient data, claim payloads, or protected call content.
-Direct payer verification sends accepted evidence to the payer without an intermediary hop.
-See the [HAP-1 draft](/spec/identity/hap-1) for the proposed boundaries.
-The [HTTP access profile](/spec/identity/hap-1-http) resolves provider permissions from trusted records and adds no separate HAP credential exchange.
+## Report a security issue
 
-## Call registration and verification
-
-The [voice proposal](/spec/identity/hap-1-voice) authenticates agent registration before dialing.
-Payer-controlled discovery selects the verifier, covered destinations, accepted credentials, and correlation methods.
-An allowlisted URL or self-published key alone does not establish client identity or payer approval.
-
-A positive identity result does not establish provider delegation or authorize record access.
-The result must bind the authenticated client and registration to the actual payer-side call.
-Expired references, replayed tokens, ambiguous observations, or unverifiable results leave the call unverified.
-The payer accepts delegation or permission assertions only from a service separately approved to establish that authority.
-Missing, expired, revoked, or unverifiable authorization prevents protected work, including during an already verified call.
-
-An external audio feed contains only the approved identity exchange and excludes protected conversation content.
-Registration requests and verification events contain no patient or claim data.
-An unrestricted fork of the conversation is outside this proposal's data boundary.
-
-## Optional payload encryption
-
-End-to-end payload encryption is an optional implementation choice.
-It can keep lookup identifiers unreadable to an RCM bot that forwards requests to the payer.
-It does not replace HTTPS, authentication, verified delegation, or payer authorization.
-
-The intended privacy benefit is reduced plaintext PHI exposure.
-An encrypted lookup payload does not establish that responses, metadata, errors, or receipts contain no PHI.
-Implementations must limit those fields to the information their participants need.
-
-The [HAP-1 privacy pattern](/spec/identity/hap-1#optional-payload-encryption) describes the core data boundaries.
-The detailed encryption profile remains [future work](/docs/roadmap#optional-privacy-profile-after-v0).
-
-## Vulnerability reports
-
-Use GitHub's private vulnerability reporting feature in this repository's Security tab.
-Do not disclose exploitable details in public discussions or issues.
-Use invented values in reports.
-
-Protocol review and conformance work remain in progress.
+Use [GitHub's private reporting form](https://github.com/Healthcare-Agent-Protocol/healthcare-agent-protocol/security/advisories/new).
+Describe what is affected and how to reproduce the problem using invented data.
+Keep exploitable details out of public discussions and issues.
