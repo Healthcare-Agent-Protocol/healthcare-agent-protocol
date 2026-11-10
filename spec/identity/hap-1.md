@@ -30,6 +30,30 @@ The phone call carries a short reference that connects it to that authenticated 
 4. The payer verifies the reference against the actual incoming call using `VerifyCallRef` or an authenticated result from its integrated verifier.
 5. The payer checks provider authority and access before doing protected work.
 
+```mermaid
+sequenceDiagram
+    participant A as Agent
+    participant V as Registration / verifier
+    participant P as Payer
+
+    A->>P: Read trusted payer card
+    P-->>A: Endpoint, API authentication and call methods
+    A->>V: CreateCallRef over HTTPS<br/>with standard API authentication
+    V->>V: Authenticate agent<br/>and store call registration
+    V-->>A: Call reference, expiry and instructions
+    A->>P: Dial and send reference via DTMF or agreed method
+
+    alt Payer looks up the reference
+        P->>V: VerifyCallRef for this incoming call
+        V-->>P: Authenticated verification result<br/>bound to this call
+    else Integrated verifier reports the result
+        V-->>P: Authenticated verification result<br/>bound to this call
+    end
+
+    P->>P: Require verified call and check provider authority,<br/>action, record limits and local policy
+    P-->>A: Authorized answer or refusal
+```
+
 The payer can run verification itself or choose an approved service.
 RN/JIP signaling and audio watermarks require an agreed integration; they are not assumed to work on every call.
 Discovery and message schemas are still proposals.
