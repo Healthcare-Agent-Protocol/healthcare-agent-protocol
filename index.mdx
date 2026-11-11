@@ -36,7 +36,7 @@ The [claim-status reference](https://github.com/Healthcare-Agent-Protocol/health
 
 The proposed phone flow starts before the agent dials:
 
-1. **Find out where to register.** The payer publishes which service handles authentication for the number the agent plans to call.
+1. **Find out where to register.** Start with the payer's URL and JSON card, or its phone number and a DNS NAPTR lookup. Either route identifies the out-of-band HTTPS registration endpoint.
 2. **Register the call.** The agent authenticates through an API. The service returns a short-lived call reference and instructions for using it.
 3. **Place the call.** The agent sends the agreed reference using touch-tone digits (DTMF), spoken digits, or another supported method.
 4. **Match the incoming call.** The payer or its chosen verifier connects that call to the authenticated registration.
@@ -44,9 +44,10 @@ The proposed phone flow starts before the agent dials:
 The reference lets the payer connect the caller to a registration it already trusts.
 The payer then checks whether that agent has permission to access the requested information.
 
-The payer can run verification itself or choose a partner.
+The payer can operate the registration and verification endpoint itself or publish the endpoint of its chosen verifier.
+The agent discovers that choice before authenticating; HAP requires no central registrar.
 RN/JIP signaling and audio watermarks are also under consideration, with technical details still to agree.
-The [identity and access page](/spec/identity/hap-1#phone-calls) explains the flow and the open questions.
+The [identity and access page](/spec/identity/hap-1#find-the-registration-endpoint) explains both discovery routes and the call flow.
 
 ## The payer controls access
 
